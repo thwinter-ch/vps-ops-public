@@ -71,45 +71,35 @@ Even if the service account token leaks, the blast radius is limited to Hugo's o
 
 ## Network Hardening
 
-### Zero Public Ports Architecture
+### Current Architecture (February 2026)
 
-As of January 30, 2026, we migrated from nginx reverse proxy to **Cloudflare Tunnel + Access**. The servers now have zero ports exposed to the public internet.
+Web traffic routes through **Caddy** reverse proxy with automatic HTTPS:
 
 ```
 Public Internet
        │
        ▼
 ┌─────────────────────────────────────┐
-│     Cloudflare Edge                 │
-│  (DDoS protection, WAF, bot filter) │
+│     Caddy (ports 80/443)            │
+│  (Automatic HTTPS, reverse proxy)   │
 └──────────────────┬──────────────────┘
                    │
 ┌──────────────────▼──────────────────┐
-│     Cloudflare Access               │
-│  (Authentication for Hugo/Kari)     │
-└──────────────────┬──────────────────┘
-                   │
-┌──────────────────▼──────────────────┐
-│     Cloudflare Tunnel               │
-│  (Encrypted connection to origin)   │
-└──────────────────┬──────────────────┘
-                   │
-┌──────────────────▼──────────────────┐
-│     Apps on localhost               │
-│  (No public IP exposure)            │
+│     OpenClaw Gateway                │
+│  (localhost binding)                │
 └─────────────────────────────────────┘
 ```
 
-**What changed:**
+**Exposed ports on public interface:**
+| Port | Service | Purpose |
+|------|---------|---------|
+| 80 | Caddy | HTTP → HTTPS redirect |
+| 443 | Caddy | HTTPS termination |
 
-| Before (nginx) | After (Cloudflare Tunnel) |
-|----------------|---------------------------|
-| Ports 80/443 open | Zero public ports |
-| Server IPs in DNS (A records) | CNAMEs to tunnel endpoints |
-| Basic auth via htpasswd | Cloudflare Access (email OTP) |
-| DDoS hits your server directly | Cloudflare absorbs attacks |
-| SSL certs via Let's Encrypt | Cloudflare handles SSL |
-| nginx config to maintain | Tunnel config only |
+**Planned improvements:**
+- [ ] Cloudflare Tunnel for zero public ports
+- [ ] ufw firewall (default-deny)
+- [ ] Restrict Docker ports to localhost
 
 ### SSH Access
 
@@ -434,34 +424,89 @@ chmod 600 ~/.openclaw/*.json*
 
 ---
 
-## Cloudflare Migration (January 30, 2026)
+## Web Proxy Evolution
 
-### What Changed
+### January 30, 2026: nginx → Caddy
 
-Migrated from nginx reverse proxy to Cloudflare Tunnel + Access:
+Migrated from nginx to Caddy for simpler HTTPS management:
 
-| Component | Before | After |
-|-----------|--------|-------|
-| Web routing | nginx on ports 80/443 | Cloudflare Tunnel (zero ports) |
-| DNS | A records with server IPs | CNAMEs to tunnel endpoints |
-| Authentication | htpasswd basic auth | Cloudflare Access (email OTP) |
-| DDoS protection | None (direct exposure) | Cloudflare edge |
-| WAF | None | Cloudflare WAF |
-| SSL | Let's Encrypt + certbot | Cloudflare managed |
+| Component | Before (nginx) | After (Caddy) |
+|-----------|----------------|---------------|
+| Web routing | nginx manual config | Caddy automatic |
+| SSL | Let's Encrypt + certbot | Caddy automatic HTTPS |
+| Config complexity | High | Low |
 
-### Services Migrated
+### Planned: Cloudflare Tunnel
 
-| Service | Tunnel | Access Policy |
-|---------|--------|---------------|
-| Hugo web UI | prod-tunnel | Owner email only |
-| Kari web UI | dev-tunnel | Owner email only |
-| Intake webhook | prod-tunnel | Public (Telegram needs access) |
+Future migration to Cloudflare Tunnel would provide:
+- Zero public ports (all traffic via tunnel)
+- DDoS protection at edge
+- WAF filtering
+- Server IP hidden from DNS
 
-### nginx Decommissioned
+**Status:** Not yet implemented. Currently using Caddy on public ports 80/443.
 
-- Stopped and disabled on both prod and dev servers
-- Configuration files retained for reference but service not running
-- Ports 80/443 no longer listening
+---
+
+## GitHub Access Model (February 5, 2026)
+
+### The Problem with Shared OAuth Tokens
+
+Previously, AI agents used `gh auth login` which created an OAuth token with **full account access**. If an agent was compromised, an attacker could:
+- Access ALL repositories
+- Delete repositories
+- Modify any code
+
+### Fine-Grained PAT Solution
+
+Each AI agent now has its own **fine-grained Personal Access Token**:
+
+```
+┌─────────────────────────────────────────┐
+│           GitHub Account                │
+│         (thwinter-ch)                   │
+└──────────────────┬──────────────────────┘
+                   │
+    ┌──────────────┼──────────────┐
+    ▼              ▼              ▼
+┌────────┐   ┌────────┐   ┌────────────┐
+│ Hugo   │   │ Claude │   │  (future)  │
+│  PAT   │   │  PAT   │   │    PAT     │
+└───┬────┘   └───┬────┘   └────────────┘
+    │            │
+    ▼            ▼
+┌────────────────────────────────────────┐
+│  hugo-workspace     ✅    ✅           │
+│  vps-ops-public     ✅    ✅           │
+│  trading-agents     ✅    ❌           │
+│  other-repos        ❌    ❌           │
+└────────────────────────────────────────┘
+```
+
+**Benefits:**
+- **Blast radius limited** — Compromised agent can only touch specific repos
+- **Clear attribution** — Git commits show which agent made changes
+- **Easy revocation** — Revoke one token without affecting others
+- **Forced rotation** — Tokens expire (90 days), ensuring regular refresh
+
+### Token Storage
+
+Tokens stored in 1Password, fetched at runtime:
+```bash
+# Hugo
+op read 'op://Hugo/Hugo GitHub PAT/credential'
+
+# Claude
+op read 'op://Hugo/Claude GitHub PAT/credential'
+```
+
+### Git Identity
+
+Each agent commits with distinct identity:
+```
+Hugo:   Hugo <hugo.blizzardventures@gmail.com>
+Claude: Claude <claude@blizzardventures.com>
+```
 
 ---
 
@@ -483,13 +528,12 @@ Migrated from nginx reverse proxy to Cloudflare Tunnel + Access:
 - [x] **Session routing via explicit tools only** (Jan 29, 2026)
 - [x] **File permissions hardened (600)** (Jan 29, 2026)
 - [x] **Owner notification after non-owner conversations** (Jan 29, 2026)
-- [x] **Cloudflare Tunnel — zero public ports** (Jan 30, 2026)
-- [x] **Cloudflare Access — Hugo/Kari behind email OTP** (Jan 30, 2026)
-- [x] **nginx decommissioned** (Jan 30, 2026)
-- [x] **Server IPs hidden from DNS** (Jan 30, 2026)
-- [x] **DDoS/WAF protection via Cloudflare** (Jan 30, 2026)
+- [x] **Caddy replaced nginx** (Jan 30, 2026)
+- [x] **Automatic HTTPS via Caddy** (Jan 30, 2026)
 - [x] **Daily security monitoring with public PSA reports** (Feb 5, 2026)
 - [x] **Dedicated #hugo-security Discord channel** (Feb 5, 2026)
+- [x] **Fine-grained GitHub PATs per agent** (Feb 5, 2026)
+- [x] **Separate git identities for Hugo/Claude** (Feb 5, 2026)
 
 ### In Progress 🔄
 
@@ -500,6 +544,9 @@ Migrated from nginx reverse proxy to Cloudflare Tunnel + Access:
 
 ### Planned 🔜
 
+- [ ] **Cloudflare Tunnel** — Zero public ports architecture
+- [ ] **Cloudflare Access** — Email OTP for web UIs
+- [ ] **ufw firewall** — Default-deny, allowlist only 80/443
 - [ ] Memory file encryption at rest
 - [ ] Automated credential rotation
 - [ ] Anomaly detection for unusual access patterns

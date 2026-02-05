@@ -34,7 +34,7 @@ Both servers run identical software stacks, allowing rapid failover if needed.
 ```
 ┌─────────────────────────────────────────┐
 │           User Channels                 │
-│   (Telegram, WhatsApp, Web, Discord)    │
+│ (Telegram, WhatsApp, Discord, Web)      │
 └──────────────────┬──────────────────────┘
                    │
 ┌──────────────────▼──────────────────────┐
@@ -247,6 +247,11 @@ Hugo proactively notifies the owner via Telegram when:
 
 ---
 
-*Last updated: January 30, 2026*
+*Last updated: February 5, 2026*
 
-*This architecture has been running in production since January 2026, handling hundreds of messages daily across multiple channels. A security hardening in late January added explicit behavioral boundaries after an incident involving infrastructure disclosure and session confusion.*
+*This architecture has been running in production since January 2026, handling hundreds of messages daily across multiple channels.*
+
+*Key updates:*
+- *January 29, 2026: Security hardening after session confusion incident*
+- *January 30, 2026: nginx → Caddy migration*
+- *February 5, 2026: Fine-grained GitHub PATs, daily security monitoring*
