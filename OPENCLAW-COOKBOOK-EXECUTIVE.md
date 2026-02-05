@@ -1,32 +1,22 @@
-# Building Your Own AI Assistant: Executive Overview
+# OpenClaw Cookbook: Executive Overview
 
-*A non-technical guide to understanding what it takes to run a private AI assistant infrastructure.*
-
----
-
-## Why Run Your Own?
-
-Most people use AI through hosted services — ChatGPT, Claude.ai, Gemini. You type in a browser, they handle everything.
-
-**Important clarification:** Running your own OpenClaw server doesn't mean "fully private." Your conversations still go to Claude's API for inference — Anthropic processes the actual AI responses.
-
-**What you DO control:**
-- **Memory files** — The AI's persistent knowledge stays on YOUR server, not in Anthropic's cloud
-- **Credentials** — API keys and secrets stay in your vault, never sent to the AI
-- **Behavioral rules** — You define what the AI can and cannot do
-- **Integrations** — Direct connections to your calendar, email, tools
-- **Session transcripts** — Can stay local if you want
-
-**What still goes to the cloud:**
-- Conversation content (for AI inference via Claude API)
-
-The value isn't "air-gapped privacy." It's **control over the AI's memory, rules, and integrations** — plus keeping credentials out of any conversation that goes to the API.
-
-The tradeoff: You're responsible for security, uptime, and maintenance.
+*A non-technical guide to running your own AI assistant infrastructure.*
 
 ---
 
-## What You're Building
+## Why This Matters
+
+OpenClaw is one of the hottest things in AI right now. Everyone wants their own AI assistant that remembers them, connects to their tools, and works across channels.
+
+But as Brad Smith wrote in *Tools and Weapons*: powerful technology can take different forms and shapes. The same AI that manages your calendar can — if poorly architected — leak your credentials, expose your infrastructure, or become a vector for social engineering.
+
+**The point isn't to scare you.** It's to recognize that building this right from the beginning is worth the effort. A robust architecture costs the same as a sloppy one — it just requires thinking it through upfront.
+
+This guide explains the key concepts. The linked documents show you how to actually build it.
+
+---
+
+## What You're Actually Building
 
 Think of it as giving an AI assistant:
 - **A home** (a server to run on)
@@ -42,14 +32,8 @@ Think of it as giving an AI assistant:
 └──────────────────┬──────────────────────┘
                    │
 ┌──────────────────▼──────────────────────┐
-│         Cloudflare (Security)           │
-│   Protects against attacks, handles     │
-│   encryption, hides your server         │
-└──────────────────┬──────────────────────┘
-                   │
-┌──────────────────▼──────────────────────┐
 │         Your Server (VPS)               │
-│   Runs the AI gateway software          │
+│   Runs the OpenClaw gateway             │
 └──────────────────┬──────────────────────┘
                    │
 ┌──────────────────▼──────────────────────┐
@@ -58,9 +42,20 @@ Think of it as giving an AI assistant:
 └─────────────────────────────────────────┘
 ```
 
+**Important clarification:** Running your own server doesn't mean "fully private." Conversations still go to Claude's API for inference.
+
+**What you control:**
+- Memory files stay on YOUR server
+- Credentials stay in your vault, never sent to the AI
+- You define behavioral rules
+- Direct integrations to your tools
+
+**What goes to the cloud:**
+- Conversation content (for AI inference)
+
 ---
 
-## Core Principles
+## The Core Principles
 
 ### 1. Defense in Depth
 
@@ -68,9 +63,9 @@ Don't rely on a single security measure. Layer them:
 
 | Layer | What It Does |
 |-------|--------------|
-| Cloudflare | Blocks attacks before they reach you |
-| Firewall | Controls what can connect to your server |
-| Docker | Isolates the AI from the rest of the server |
+| Web proxy | Handles encryption, hides your server |
+| Firewall | Controls what can connect |
+| Docker | Isolates the AI from the server |
 | Secrets Vault | Keeps passwords out of reach |
 
 If one layer fails, others still protect you.
@@ -80,18 +75,18 @@ If one layer fails, others still protect you.
 If something goes wrong, limit the damage:
 
 - Each AI agent has its own credentials (not shared)
-- Each agent can only access specific repositories (not everything)
+- Each agent can only access specific things (not everything)
 - Secrets are stored externally (not on the server)
 
-**Example:** If Agent A is compromised, Agent B keeps running. Your personal accounts are unaffected.
+If Agent A is compromised, Agent B keeps running.
 
-### 3. Zero Trust
+### 3. Assume Adversarial Input
 
-Assume any component could be compromised:
+If your AI engages publicly (social media, public channels), assume every message could be an attack:
 
-- The server doesn't trust incoming connections (everything goes through Cloudflare)
-- The AI doesn't trust user claims ("I'm the owner" means nothing — verify by session)
+- The AI doesn't trust user claims ("I'm the owner" means nothing)
 - Secrets aren't stored where the AI can read them
+- Clear rules about what the AI can never reveal
 
 ---
 
@@ -99,67 +94,44 @@ Assume any component could be compromised:
 
 ### The Server (VPS)
 
-A virtual private server is a computer in the cloud that runs 24/7. Think of it as renting a computer in a data center.
+A virtual private server — a computer in the cloud that runs 24/7.
 
-**What to look for:**
-- Location in your region (for latency and data residency)
-- Enough memory (4GB minimum, 8GB comfortable)
-- Reliable provider (Hostinger, Hetzner, DigitalOcean, etc.)
+- 4GB memory minimum, 8GB comfortable
+- Providers: Hostinger, Hetzner, DigitalOcean
+- **Cost: $5-10/month**
 
-**Cost:** ~$10-30/month
+### Password Manager
 
-### Cloudflare Tunnel
+You probably already have one. Use it to store API keys and secrets:
 
-Instead of opening your server to the internet, Cloudflare creates a secure tunnel:
-
-- Your server's real address stays hidden
-- Attackers can't find you to attack you
-- Cloudflare handles encryption and DDoS protection
-- You get a clean domain name (assistant.yourcompany.com)
-
-**Cost:** Free tier is sufficient
-
-### Docker
-
-Software packaging that keeps the AI isolated:
-
-- If the AI crashes, it doesn't take down the server
-- Easy to update or roll back
-- Consistent environment across different servers
-
-### 1Password (or similar vault)
-
-Stores all passwords, API keys, and secrets:
-
-- The AI doesn't have the keys — it requests them at runtime
-- If the server is compromised, keys aren't exposed
-- Easy to rotate credentials without touching the server
-
-**Cost:** ~$3-8/month
+- The AI requests credentials at runtime
+- If the server is compromised, keys aren't on disk
+- Easy to rotate without touching the server
 
 ### OpenClaw
 
-The gateway software that makes it all work:
+The gateway software:
 
 - Connects to messaging platforms (Telegram, WhatsApp, etc.)
 - Manages conversation sessions
-- Executes tools the AI needs
+- Executes tools
 - Handles memory and context
 
 ---
 
-## The Security Mindset
+## Cost Summary
 
-### What You're Protecting Against
+| Component | Monthly Cost |
+|-----------|--------------|
+| VPS Server | $5-10 |
+| Password Manager | You already have one |
+| **Claude API** | **$20-100** (this is the real cost) |
 
-| Threat | Plain English |
-|--------|---------------|
-| Data Exfiltration | Someone stealing your AI's memory (personal context, schedules, relationships) |
-| Credential Theft | Someone stealing your API keys and running up bills or accessing your accounts |
-| Server Takeover | Someone gaining control of your server |
-| Prompt Injection | Someone tricking the AI into revealing secrets or doing harmful things |
+The infrastructure is cheap. The AI inference is where the money goes.
 
-### Questions to Ask Your Technical Team
+---
+
+## Questions to Ask Your Technical Team
 
 1. **"Where are the secrets stored?"**
    - Good: External vault, fetched at runtime
@@ -169,55 +141,26 @@ The gateway software that makes it all work:
    - Good: Revoke vault access, spin up new server, minimal data loss
    - Bad: "Everything is lost"
 
-3. **"Can someone on the internet reach the server directly?"**
-   - Good: No, everything goes through Cloudflare Tunnel
-   - Bad: Yes, ports are open
-
-4. **"What can each AI agent access?"**
-   - Good: Only specific repositories and credentials it needs
+3. **"What can each AI agent access?"**
+   - Good: Only specific resources it needs
    - Bad: Everything the owner can access
 
-5. **"How do we know if something goes wrong?"**
-   - Good: Regular security scans, monitoring, alerts
+4. **"How do we know if something goes wrong?"**
+   - Good: Regular security scans, monitoring
    - Bad: "We'd notice eventually"
-
----
-
-## Cost Summary
-
-| Component | Monthly Cost | Notes |
-|-----------|--------------|-------|
-| VPS Server | $10-30 | More memory = higher cost |
-| Cloudflare | $0 | Free tier sufficient |
-| 1Password | $3-8 | Team or individual plan |
-| Domain | $1-2 | Annual cost averaged |
-| Claude API | Variable | Based on usage, typically $20-100 |
-
-**Total: $35-140/month** depending on usage and configuration.
-
----
-
-## What Success Looks Like
-
-A well-run AI assistant infrastructure:
-
-- **Runs reliably** — Restarts automatically if it crashes
-- **Stays secure** — No exposed ports, secrets in vault, regular audits
-- **Recovers quickly** — Can rebuild from scratch in under 30 minutes
-- **Has boundaries** — Clear rules about what the AI can and cannot do
-- **Is maintainable** — Updates are straightforward, problems are diagnosable
 
 ---
 
 ## Next Steps
 
-1. **Read the Technical Cookbook** — If you're implementing this yourself
-2. **Review the Security Architecture** — Understand the detailed threat model
-3. **Decide on hosting** — Pick a VPS provider and region
-4. **Plan your integrations** — Which messaging platforms? Which tools?
+Ready to build? Here's where to go:
+
+| Document | What It Covers |
+|----------|----------------|
+| [OPENCLAW-COOKBOOK-TECHNICAL.md](OPENCLAW-COOKBOOK-TECHNICAL.md) | Step-by-step implementation guide |
+| [DEVOPS-ARCHITECTURE-PUBLIC.md](DEVOPS-ARCHITECTURE-PUBLIC.md) | Infrastructure design, backup strategy, operational model |
+| [SECOPS-ARCHITECTURE-PUBLIC.md](SECOPS-ARCHITECTURE-PUBLIC.md) | Threat model, secrets management, incident response |
 
 ---
-
-*This guide accompanies the detailed DevOps and SecOps architecture documents. For implementation details, see COOKBOOK-TECHNICAL.md.*
 
 *Last updated: February 5, 2026*
