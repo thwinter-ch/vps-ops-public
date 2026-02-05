@@ -63,9 +63,7 @@ Restart: `systemctl restart sshd`
 apt install ufw -y
 ufw default deny incoming
 ufw default allow outgoing
-ufw allow 22/tcp
-ufw allow 80/tcp
-ufw allow 443/tcp
+ufw allow 22/tcp    # Remove later after Tailscale setup
 ufw enable
 ```
 
@@ -168,28 +166,62 @@ For production, create a systemd service or use a process manager.
 
 ---
 
-## Step 5: Set Up Web Proxy (Caddy)
+## Step 5: Set Up Cloudflare Tunnel
 
-Caddy handles HTTPS automatically.
+Cloudflare Tunnel exposes your localhost services to the internet through an outbound-only connection. No inbound ports needed — no 80, no 443.
 
-```bash
-apt install -y debian-keyring debian-archive-keyring apt-transport-https
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
-apt update
-apt install caddy
-```
-
-Edit `/etc/caddy/Caddyfile`:
-```
-hugo.yourdomain.com {
-    reverse_proxy localhost:18789
-}
-```
+### 5.1 Install cloudflared
 
 ```bash
-systemctl reload caddy
+curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+dpkg -i cloudflared.deb
 ```
+
+### 5.2 Authenticate and Create Tunnel
+
+```bash
+cloudflared tunnel login
+cloudflared tunnel create my-tunnel
+```
+
+### 5.3 Configure the Tunnel
+
+Create `/etc/cloudflared/config.yml`:
+```yaml
+tunnel: <tunnel-id>
+credentials-file: /root/.cloudflared/<tunnel-id>.json
+
+ingress:
+  - hostname: assistant.yourdomain.com
+    service: http://localhost:18789
+  - service: http_status:404
+```
+
+### 5.4 Set Up DNS
+
+```bash
+cloudflared tunnel route dns my-tunnel assistant.yourdomain.com
+```
+
+This creates a CNAME record in Cloudflare pointing to your tunnel. Your server IP never appears in DNS.
+
+### 5.5 Run as a Service
+
+```bash
+cloudflared service install
+systemctl enable cloudflared
+systemctl start cloudflared
+```
+
+### 5.6 Update Firewall
+
+With Cloudflare Tunnel, you no longer need ports 80 or 443 open:
+```bash
+ufw delete allow 80/tcp
+ufw delete allow 443/tcp
+```
+
+> **Alternative:** If you are not using Cloudflare, [Caddy](https://caddyserver.com/) is a solid reverse proxy with automatic HTTPS. However, it requires opening ports 80 and 443 on the server.
 
 ---
 
@@ -215,9 +247,10 @@ git config --global user.email "hugo@yourdomain.com"
 
 - [ ] SSH: Key-based only, no passwords
 - [ ] SSH: Restricted to Tailscale interface
-- [ ] Firewall: UFW active, default deny
-- [ ] OpenClaw: Running and responding
-- [ ] Web proxy: HTTPS working
+- [ ] Firewall: UFW active, default deny, no 80/443 open
+- [ ] OpenClaw: Running and responding on localhost
+- [ ] Cloudflare Tunnel: Active, routing to localhost services
+- [ ] DNS: CNAME records in Cloudflare (no A records to server IP)
 - [ ] GitHub: Fine-grained PAT, specific repos only
 
 ---
@@ -230,8 +263,8 @@ Use provider's console to fix `/etc/ssh/sshd_config`.
 **OpenClaw not starting:**
 Check Node.js version, config file syntax, environment variables.
 
-**HTTPS not working:**
-Check Caddy logs: `journalctl -u caddy -f`
+**Cloudflare Tunnel not routing:**
+Check tunnel status: `systemctl status cloudflared` and `cloudflared tunnel info`
 
 ---
 

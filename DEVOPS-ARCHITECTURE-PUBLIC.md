@@ -39,6 +39,15 @@ All servers run identical software stacks, allowing rapid failover if needed.
 └──────────────────┬──────────────────────┘
                    │
 ┌──────────────────▼──────────────────────┐
+│     Cloudflare CDN / WAF / Tunnel       │
+│   (DDoS protection, zero inbound ports) │
+└──────────────────┬──────────────────────┘
+                   │  outbound tunnel
+┌──────────────────▼──────────────────────┐
+│     cloudflared → localhost services    │
+└──────────────────┬──────────────────────┘
+                   │
+┌──────────────────▼──────────────────────┐
 │          OpenClaw Gateway               │
 │   (Message routing, session mgmt)       │
 └──────────────────┬──────────────────────┘
@@ -301,5 +310,5 @@ Repos inactive for 12+ months are archived:
 
 *Key updates:*
 - *January 29, 2026: Security hardening after session confusion incident*
-- *January 30, 2026: nginx → Caddy migration*
+- *February 2026: Cloudflare Tunnel migration — zero inbound ports, no reverse proxy on server*
 - *February 5, 2026: Third server (prod-fr), fine-grained GitHub PATs, weekly security scans, repository organization*

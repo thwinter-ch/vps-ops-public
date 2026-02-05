@@ -53,7 +53,7 @@ Daily scan should check:
 1. **OpenClaw/ClawdBot** — GitHub releases, security advisories
 2. **Node.js** — Security releases
 3. **Ubuntu/Debian** — USN (Ubuntu Security Notices)
-4. **nginx/Caddy** — Web server CVEs
+4. **cloudflared** — Cloudflare Tunnel daemon CVEs
 5. **Tailscale** — Security advisories
 6. **Docker** — Container vulnerabilities
 7. **General AI security** — Prompt injection research, agent security news

@@ -114,17 +114,23 @@ topic:contains-secrets
 
 ## Network Hardening
 
-### Current Architecture (February 2026)
+### Current Architecture: Zero Inbound Ports
 
-Web traffic routes through **Caddy** reverse proxy with automatic HTTPS:
+All web traffic routes through **Cloudflare Tunnel** via `cloudflared` — an outbound-only connection from the server. No inbound ports are needed for web traffic.
 
 ```
 Public Internet
        │
        ▼
 ┌─────────────────────────────────────┐
-│     Caddy (ports 80/443)            │
-│  (Automatic HTTPS, reverse proxy)   │
+│  Cloudflare CDN / WAF / DDoS       │
+└──────────────────┬──────────────────┘
+                   │
+       Cloudflare Tunnel (outbound from server)
+                   │
+┌──────────────────▼──────────────────┐
+│     cloudflared daemon              │
+│  (outbound connection only)         │
 └──────────────────┬──────────────────┘
                    │
 ┌──────────────────▼──────────────────┐
@@ -133,23 +139,21 @@ Public Internet
 └─────────────────────────────────────┘
 ```
 
+**How it works:**
+- `cloudflared` establishes an outbound connection to Cloudflare's edge
+- Cloudflare routes incoming requests through this tunnel to localhost services
+- The server never opens inbound ports 80 or 443
+- Server IP is hidden from DNS (CNAME records point to Cloudflare, not the server)
+
 **Firewall (ufw):**
 ```
 Default: deny (incoming), allow (outgoing)
-Allowed: 22/tcp, 80/tcp, 443/tcp, 41641/udp (Tailscale), 100.64.0.0/10
+Allowed: 41641/udp (Tailscale), 100.64.0.0/10
 ```
 
-**Exposed ports on public interface:**
-| Port | Service | Purpose |
-|------|---------|---------|
-| 22 | SSH | Admin access (also via Tailscale) |
-| 80 | Caddy | HTTP → HTTPS redirect |
-| 443 | Caddy | HTTPS termination |
+**Exposed ports on public interface: None.**
 
-**Planned improvements:**
-- [ ] Cloudflare Tunnel for zero public ports
-- [ ] Restrict Docker ports to localhost
-- [ ] SSH only via Tailscale (remove public 22)
+All web services are accessed through Cloudflare Tunnel. SSH is restricted to Tailscale VPN only.
 
 ### SSH Access
 
@@ -604,25 +608,25 @@ chmod 600 ~/.openclaw/*.json*
 
 ## Web Proxy Evolution
 
-### January 30, 2026: nginx → Caddy
+### Timeline
 
-Migrated from nginx to Caddy for simpler HTTPS management:
+| Date | Architecture | Key Change |
+|------|-------------|------------|
+| January 2026 | nginx | Manual config, certbot for SSL |
+| January 30, 2026 | Caddy | Automatic HTTPS, simpler config |
+| February 2026 | **Cloudflare Tunnel** | Zero inbound ports, server IP hidden |
 
-| Component | Before (nginx) | After (Caddy) |
-|-----------|----------------|---------------|
-| Web routing | nginx manual config | Caddy automatic |
-| SSL | Let's Encrypt + certbot | Caddy automatic HTTPS |
-| Config complexity | High | Low |
+### Current: Cloudflare Tunnel (cloudflared)
 
-### Planned: Cloudflare Tunnel
+The production architecture uses Cloudflare Tunnel exclusively for web traffic:
 
-Future migration to Cloudflare Tunnel would provide:
-- Zero public ports (all traffic via tunnel)
-- DDoS protection at edge
-- WAF filtering
-- Server IP hidden from DNS
+- **Zero inbound ports** — `cloudflared` connects outbound to Cloudflare's edge
+- **DDoS protection** — Cloudflare absorbs volumetric attacks at edge
+- **WAF filtering** — Malicious requests blocked before reaching the server
+- **Server IP hidden** — DNS uses CNAME records to Cloudflare, not A records to the server
+- **Automatic HTTPS** — TLS terminated at Cloudflare's edge
 
-**Status:** Not yet implemented. Currently using Caddy on public ports 80/443.
+No reverse proxy (nginx, Caddy, or otherwise) runs on the server. All routing is handled by `cloudflared` forwarding to localhost services.
 
 ---
 
@@ -713,9 +717,8 @@ Claude: Claude <claude@blizzardventures.com>
 - [x] **Session routing via explicit tools only** (Jan 29, 2026)
 - [x] **File permissions hardened (600)** (Jan 29, 2026)
 - [x] **Owner notification after non-owner conversations** (Jan 29, 2026)
-- [x] **Caddy replaced nginx** (Jan 30, 2026)
-- [x] **Automatic HTTPS via Caddy** (Jan 30, 2026)
-- [x] **ufw firewall** — default-deny, allowlist for 22/80/443/Tailscale
+- [x] **Cloudflare Tunnel (cloudflared)** — zero inbound ports, server IP hidden (Feb 2026)
+- [x] **ufw firewall** — default-deny, allowlist for Tailscale only
 - [x] **Docker ports bound to localhost** (Feb 5, 2026)
 - [x] **CUPS removed from production servers** (Feb 5, 2026)
 - [x] **Daily security monitoring with public PSA reports** (Feb 5, 2026)
@@ -735,7 +738,6 @@ Claude: Claude <claude@blizzardventures.com>
 
 ### Planned 🔜
 
-- [ ] **Cloudflare Tunnel** — Zero public ports architecture
 - [ ] **Cloudflare Access** — Email OTP for web UIs
 - [ ] Memory file encryption at rest
 - [ ] Automated credential rotation
@@ -840,7 +842,7 @@ Proactive monitoring catches issues before they become incidents.
 
 *This security architecture has been reviewed and tested in production. Major hardening events:*
 - *January 29, 2026: Behavioral boundaries after session confusion incident*
-- *January 30, 2026: nginx → Caddy migration*
+- *February 2026: Cloudflare Tunnel migration — zero inbound ports*
 - *February 5, 2026: Docker port isolation, GitHub token scoping, daily security monitoring, Moltbook engagement rules*
 
 *We maintain ongoing security research and track vulnerabilities in our Hugo SecOps database.*
