@@ -548,12 +548,12 @@ Claude: Claude <claude@blizzardventures.com>
 - [x] **Daily security monitoring with public PSA reports** (Feb 5, 2026)
 - [x] **Dedicated #hugo-security Discord channel** (Feb 5, 2026)
 - [x] **Fine-grained GitHub PATs per agent** (Feb 5, 2026)
-- [x] **Separate git identities for Hugo/Claude** (Feb 5, 2026)
+- [x] **Separate git identities for Hugo/Kari/Claude** (Feb 5, 2026)
+- [x] **Kari 1Password integration + isolated vault** (Feb 5, 2026)
 
 ### In Progress 🔄
 
 - [ ] Skill audit — review all installed ClawdHub skills
-- [ ] Kari 1Password integration
 - [ ] File integrity monitoring automation
 - [ ] Webhook token validation for intake app
 
