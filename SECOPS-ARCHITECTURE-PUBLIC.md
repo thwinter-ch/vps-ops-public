@@ -474,20 +474,21 @@ Each AI agent now has its own **fine-grained Personal Access Token**:
 │         (thwinter-ch)                   │
 └──────────────────┬──────────────────────┘
                    │
-    ┌──────────────┼──────────────┐
-    ▼              ▼              ▼
-┌────────┐   ┌────────┐   ┌────────────┐
-│ Hugo   │   │ Claude │   │  (future)  │
-│  PAT   │   │  PAT   │   │    PAT     │
-└───┬────┘   └───┬────┘   └────────────┘
-    │            │
-    ▼            ▼
-┌────────────────────────────────────────┐
-│  hugo-workspace     ✅    ✅           │
-│  vps-ops-public     ✅    ✅           │
-│  trading-agents     ✅    ❌           │
-│  other-repos        ❌    ❌           │
-└────────────────────────────────────────┘
+    ┌──────────────┼──────────────┬───────────────┐
+    ▼              ▼              ▼               ▼
+┌────────┐   ┌────────┐   ┌────────┐   ┌────────────┐
+│ Hugo   │   │ Kari   │   │ Claude │   │  (future)  │
+│  PAT   │   │  PAT   │   │  PAT   │   │    PAT     │
+└───┬────┘   └───┬────┘   └───┬────┘   └────────────┘
+    │            │            │
+    ▼            ▼            ▼
+┌─────────────────────────────────────────────────────┐
+│  hugo-workspace     ✅    ❌    ❌                  │
+│  kari-workspace     ❌    ✅    ❌                  │
+│  vps-ops-public     ✅    ✅    ✅                  │
+│  trading-agents     ✅    ❌    ❌                  │
+│  other-repos        ❌    ❌    ❌                  │
+└─────────────────────────────────────────────────────┘
 ```
 
 **Benefits:**
@@ -498,20 +499,26 @@ Each AI agent now has its own **fine-grained Personal Access Token**:
 
 ### Token Storage
 
-Tokens stored in 1Password, fetched at runtime:
+Each agent has their own isolated 1Password vault. Tokens fetched at runtime:
 ```bash
-# Hugo
+# Hugo (prod server)
 op read 'op://Hugo/Hugo GitHub PAT/credential'
 
-# Claude
+# Kari (dev server)
+op read 'op://Kari/Kari GitHub PAT/credential'
+
+# Claude (janitor) - uses Hugo vault
 op read 'op://Hugo/Claude GitHub PAT/credential'
 ```
+
+**Vault isolation:** If one agent is compromised, attacker only sees that agent's vault — not other agents' secrets.
 
 ### Git Identity
 
 Each agent commits with distinct identity:
 ```
 Hugo:   Hugo <hugo.blizzardventures@gmail.com>
+Kari:   Kari <kari.tafelwart@gmail.com>
 Claude: Claude <claude@blizzardventures.com>
 ```
 
