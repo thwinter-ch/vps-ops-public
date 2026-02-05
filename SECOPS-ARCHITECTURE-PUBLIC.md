@@ -224,13 +224,12 @@ Both servers participate in a **Tailscale** mesh network for admin access:
 
 ### Web Application Access
 
-Web UIs (Hugo, Kari) and webhooks (intake) route through Cloudflare Tunnel:
+Web UIs and webhooks route through the web proxy:
 
-| Hostname | Access Policy | Notes |
-|----------|---------------|-------|
-| hugo.blizzardventures.com | Owner only (Cloudflare Access) | Web UI requires email OTP |
-| kari.blizzardventures.com | Owner only (Cloudflare Access) | Web UI requires email OTP |
-| intake.blizzardventures.com | Public | Telegram webhook — no auth |
+| Service Type | Access Policy | Notes |
+|--------------|---------------|-------|
+| Agent web UIs | Owner only (authentication required) | Email OTP or similar |
+| Webhooks | Varies | Some require public access for platform callbacks |
 
 ### Adding New Services
 
