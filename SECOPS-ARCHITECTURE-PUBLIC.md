@@ -90,16 +90,23 @@ Public Internet
 └─────────────────────────────────────┘
 ```
 
+**Firewall (ufw):**
+```
+Default: deny (incoming), allow (outgoing)
+Allowed: 22/tcp, 80/tcp, 443/tcp, 41641/udp (Tailscale), 100.64.0.0/10
+```
+
 **Exposed ports on public interface:**
 | Port | Service | Purpose |
 |------|---------|---------|
+| 22 | SSH | Admin access (also via Tailscale) |
 | 80 | Caddy | HTTP → HTTPS redirect |
 | 443 | Caddy | HTTPS termination |
 
 **Planned improvements:**
 - [ ] Cloudflare Tunnel for zero public ports
-- [ ] ufw firewall (default-deny)
 - [ ] Restrict Docker ports to localhost
+- [ ] SSH only via Tailscale (remove public 22)
 
 ### SSH Access
 
@@ -530,6 +537,7 @@ Claude: Claude <claude@blizzardventures.com>
 - [x] **Owner notification after non-owner conversations** (Jan 29, 2026)
 - [x] **Caddy replaced nginx** (Jan 30, 2026)
 - [x] **Automatic HTTPS via Caddy** (Jan 30, 2026)
+- [x] **ufw firewall** — default-deny, allowlist for 22/80/443/Tailscale
 - [x] **Daily security monitoring with public PSA reports** (Feb 5, 2026)
 - [x] **Dedicated #hugo-security Discord channel** (Feb 5, 2026)
 - [x] **Fine-grained GitHub PATs per agent** (Feb 5, 2026)
@@ -546,7 +554,6 @@ Claude: Claude <claude@blizzardventures.com>
 
 - [ ] **Cloudflare Tunnel** — Zero public ports architecture
 - [ ] **Cloudflare Access** — Email OTP for web UIs
-- [ ] **ufw firewall** — Default-deny, allowlist only 80/443
 - [ ] Memory file encryption at rest
 - [ ] Automated credential rotation
 - [ ] Anomaly detection for unusual access patterns
