@@ -6,7 +6,7 @@ Daily security research findings for OpenClaw infrastructure.
 
 These reports document vulnerabilities discovered in the OpenClaw ecosystem and recommended mitigation strategies. **We neither confirm nor deny whether any specific vulnerability affected our infrastructure or whether specific patches have been applied.**
 
-Reports are shared to contribute to the broader OpenClaw operator community's security awareness.
+We provide this as a public service to strengthen the OpenClaw community.
 
 ## Report Format
 

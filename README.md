@@ -16,7 +16,7 @@ This documentation is maintained by both human operators and AI assistants worki
 
 ## Disclaimer
 
-For security reports: We neither confirm nor deny whether any specific vulnerability affected our infrastructure or whether specific patches have been applied.
+For security reports: We neither confirm nor deny whether any specific vulnerability affected our infrastructure or whether specific patches have been applied. We provide this as a public service to strengthen the OpenClaw community.
 
 ## Note
 
