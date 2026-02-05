@@ -31,10 +31,26 @@ Choose a provider and create a VPS:
 - **Storage:** 40GB SSD minimum
 - **Location:** Closest to your users
 
-### 1.2 Initial Access
+### 1.2 Set Up SSH Keys (No Passwords)
+
+**Never use password authentication for SSH.** Use SSH keys only.
+
+On your local machine, generate a key if you don't have one:
+```bash
+ssh-keygen -t ed25519 -C "your-email@example.com"
+```
+
+Copy your public key to the server:
+```bash
+ssh-copy-id root@<server-ip>
+```
+
+Or manually add your public key (`~/.ssh/id_ed25519.pub`) to the server's `~/.ssh/authorized_keys`.
+
+### 1.3 Initial Access
 
 ```bash
-# SSH to your new server
+# SSH to your new server (using key, not password)
 ssh root@<server-ip>
 
 # Update system
@@ -44,24 +60,26 @@ apt update && apt upgrade -y
 hostnamectl set-hostname prod-de  # or whatever you prefer
 ```
 
-### 1.3 Create Non-Root User (Optional but Recommended)
+### 1.4 Create Non-Root User (Optional but Recommended)
 
 ```bash
 adduser deploy
 usermod -aG sudo deploy
 
-# Copy SSH keys
+# Copy SSH keys to new user
 mkdir -p /home/deploy/.ssh
 cp ~/.ssh/authorized_keys /home/deploy/.ssh/
 chown -R deploy:deploy /home/deploy/.ssh
+chmod 700 /home/deploy/.ssh
+chmod 600 /home/deploy/.ssh/authorized_keys
 ```
 
-### 1.4 Harden SSH
+### 1.5 Harden SSH
 
 Edit `/etc/ssh/sshd_config`:
 
 ```bash
-# Disable password authentication
+# CRITICAL: Disable password authentication
 PasswordAuthentication no
 
 # Disable root login (if using non-root user)
@@ -69,12 +87,19 @@ PermitRootLogin no
 
 # Only allow specific users
 AllowUsers deploy
+
+# Only allow key-based authentication
+PubkeyAuthentication yes
+ChallengeResponseAuthentication no
+UsePAM no
 ```
 
 Restart SSH:
 ```bash
 systemctl restart sshd
 ```
+
+**Test before disconnecting:** Open a new terminal and verify you can still connect with your key.
 
 ### 1.5 Configure Firewall (UFW)
 
@@ -588,6 +613,14 @@ systemctl restart openclaw
 
 ---
 
-*This cookbook accompanies the DevOps and SecOps architecture documents. For executive overview, see COOKBOOK-EXECUTIVE.md.*
+## Related Documents
+
+| Document | What It Covers |
+|----------|----------------|
+| [OPENCLAW-COOKBOOK-EXECUTIVE.md](OPENCLAW-COOKBOOK-EXECUTIVE.md) | Non-technical overview for decision-makers |
+| [DEVOPS-ARCHITECTURE-PUBLIC.md](DEVOPS-ARCHITECTURE-PUBLIC.md) | Infrastructure design, backup strategy, operational model |
+| [SECOPS-ARCHITECTURE-PUBLIC.md](SECOPS-ARCHITECTURE-PUBLIC.md) | Threat model, secrets management, incident response |
+
+---
 
 *Last updated: February 5, 2026*

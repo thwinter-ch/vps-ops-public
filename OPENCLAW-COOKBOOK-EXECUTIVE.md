@@ -153,7 +153,18 @@ The infrastructure is cheap. The AI inference is where the money goes.
 
 ## Next Steps
 
-Ready to build? Here's where to go:
+Ready to build? Here's how:
+
+### Option 1: Let Claude Code Guide You
+
+Feed these documents to [Claude Code](https://claude.ai/claude-code) and let it walk you through the implementation step by step. It can execute commands, check your work, and troubleshoot issues as you go.
+
+Just tell it:
+> "I want to set up an OpenClaw server. Here are the docs. Guide me through it."
+
+### Option 2: Follow the Technical Cookbook
+
+Work through the step-by-step guide yourself:
 
 | Document | What It Covers |
 |----------|----------------|
