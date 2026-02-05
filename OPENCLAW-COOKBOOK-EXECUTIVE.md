@@ -6,13 +6,21 @@
 
 ## Why Run Your Own?
 
-Most people use AI through hosted services — ChatGPT, Claude.ai, Gemini. You send your data to their servers, and they process it.
+Most people use AI through hosted services — ChatGPT, Claude.ai, Gemini. You type in a browser, they handle everything.
 
-Running your own infrastructure means:
-- **Your data stays with you** — Conversations, memory, and context never leave your servers
-- **Customization** — The AI operates by your rules, with your integrations
-- **Persistence** — The AI remembers you across sessions, building long-term context
-- **Control** — You decide what the AI can and cannot do
+**Important clarification:** Running your own OpenClaw server doesn't mean "fully private." Your conversations still go to Claude's API for inference — Anthropic processes the actual AI responses.
+
+**What you DO control:**
+- **Memory files** — The AI's persistent knowledge stays on YOUR server, not in Anthropic's cloud
+- **Credentials** — API keys and secrets stay in your vault, never sent to the AI
+- **Behavioral rules** — You define what the AI can and cannot do
+- **Integrations** — Direct connections to your calendar, email, tools
+- **Session transcripts** — Can stay local if you want
+
+**What still goes to the cloud:**
+- Conversation content (for AI inference via Claude API)
+
+The value isn't "air-gapped privacy." It's **control over the AI's memory, rules, and integrations** — plus keeping credentials out of any conversation that goes to the API.
 
 The tradeoff: You're responsible for security, uptime, and maintenance.
 
