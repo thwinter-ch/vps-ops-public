@@ -47,7 +47,7 @@ All secrets live in **1Password** via a service account:
 └──────────┬──────────┘
            │ Environment Variables
 ┌──────────▼──────────┐
-│   Clawdbot Gateway  │
+│   OpenClaw Gateway  │
 └─────────────────────┘
 ```
 
@@ -195,7 +195,7 @@ Hugo serves multiple users across different channels. Security requirements:
 
 ```
 ┌─────────────────────────────────────────┐
-│              Clawdbot Gateway           │
+│              OpenClaw Gateway           │
 ├─────────────────────────────────────────┤
 │  Session: owner-telegram    [FULL]      │
 │  Session: owner-whatsapp    [FULL]      │
@@ -294,9 +294,9 @@ The attacker gets:
 
 Memory exposure is the residual risk — but it contains no authentication material.
 
-## Moltbot Security Research (January 2026)
+## OpenClaw Security Research (January 2026)
 
-In late January 2026, security researcher Jamieson O'Reilly published findings on widespread vulnerabilities in Moltbot/Clawdbot deployments. We reviewed these findings against our own infrastructure.
+In late January 2026, security researcher Jamieson O'Reilly published findings on widespread vulnerabilities in OpenClaw deployments. We reviewed these findings against our own infrastructure.
 
 ### Vulnerability Assessment
 
@@ -304,12 +304,12 @@ In late January 2026, security researcher Jamieson O'Reilly published findings o
 |--------------|-----------------|------------|
 | **Exposed Admin Ports** | Hundreds of instances found on Shodan | ✅ Mitigated — Zero public ports, Cloudflare Tunnel only |
 | **Reverse Proxy Bypass** | localhost auto-auth bypassed via misconfigured proxies | ✅ Mitigated — No nginx, no reverse proxy |
-| **Default Port Scanning** | Port 18789 widely scanned | ✅ Mitigated — Port not exposed, tunnel only |
-| **Plaintext Credentials** | Secrets in ~/.clawdbot/*.json | 🟡 Partial — Using 1Password, but memory files exist |
-| **Supply Chain (Skills)** | Poisoned skills on ClawdHub | 🔴 Audit needed — Skills in use require review |
+| **Default Port Scanning** | Default ports widely scanned | ✅ Mitigated — Ports not exposed, tunnel only |
+| **Plaintext Credentials** | Secrets in ~/.openclaw/*.json | 🟡 Partial — Using 1Password, but memory files exist |
+| **Supply Chain (Skills)** | Poisoned skills on skill registries | 🔴 Audit needed — Skills in use require review |
 | **No Sandboxing** | Full system access by default | 🔴 Vulnerable — Running as root on dedicated server |
 | **Memory Poisoning** | Write access enables agent hijacking | 🟡 Partial — Git-tracked workspace provides audit trail |
-| **Infostealer Targeting** | RedLine, Lumma, Vidar adapting to target Moltbot | 🟡 Partial — Dedicated server reduces exposure |
+| **Infostealer Targeting** | RedLine, Lumma, Vidar adapting to target OpenClaw | 🟡 Partial — Dedicated server reduces exposure |
 | **Prompt Injection** | Social media integrations leak data | 🔴 Review needed — X/Twitter integration exposure |
 
 ### Why We're Less Exposed
@@ -323,7 +323,7 @@ Public Internet ──► Cloudflare Edge ──► Tunnel ──► localhost
 Server: Zero public ports, IP not in DNS
 ```
 
-Most Moltbot vulnerabilities require public internet exposure. Our setup:
+Most OpenClaw vulnerabilities require public internet exposure. Our setup:
 - **Zero public ports** — Nothing listening on public interfaces
 - **Server IP hidden** — DNS has CNAMEs to Cloudflare, not A records to server
 - **nginx eliminated** — No reverse proxy to misconfigure
@@ -339,7 +339,7 @@ The video demonstrated a POC where a malicious skill reached 4000+ downloads via
 - Audit all installed skills manually
 - Review skill source code before installation
 - Prefer skills with verified authors and real commit history
-- Consider disabling ClawdHub if not actively needed
+- Consider disabling skill registries if not actively needed
 
 **Memory File Security:**
 Infostealers specifically target `MEMORY.md`, `SOUL.md`, and config files for "Cognitive Context Theft" — enabling perfect social engineering.
@@ -410,7 +410,7 @@ Behavioral instructions were insufficient. The AI understood "don't share secret
 
 **File Permissions Fixed:**
 ```bash
-chmod 600 ~/.clawdbot/*.json*
+chmod 600 ~/.openclaw/*.json*
 ```
 
 **Identity Links Configured:**

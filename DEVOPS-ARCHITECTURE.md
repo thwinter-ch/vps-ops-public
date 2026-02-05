@@ -38,7 +38,7 @@ Both servers run identical software stacks, allowing rapid failover if needed.
 └──────────────────┬──────────────────────┘
                    │
 ┌──────────────────▼──────────────────────┐
-│          Clawdbot Gateway               │
+│          OpenClaw Gateway               │
 │   (Message routing, session mgmt)       │
 └──────────────────┬──────────────────────┘
                    │
@@ -48,7 +48,7 @@ Both servers run identical software stacks, allowing rapid failover if needed.
 └─────────────────────────────────────────┘
 ```
 
-**Clawdbot** handles:
+**OpenClaw** handles:
 - Multi-channel message ingestion (Telegram, WhatsApp, webchat)
 - Session isolation per user/channel
 - Tool execution (shell, browser, APIs)
@@ -163,7 +163,7 @@ The heartbeat runs via cron, triggering a lightweight prompt that Hugo can act o
 #### 2. Daily Prod → Dev Sync
 - Runs at **4 AM UTC** via cron (`/scripts/backup.sh`)
 - Syncs workspace to dev server via rsync over Tailscale
-- Syncs Clawdbot config and session metadata
+- Syncs OpenClaw config and session metadata
 - Auto-commits and pushes workspace changes to Git
 - Log: `/var/log/backup.log`
 
@@ -177,7 +177,7 @@ The heartbeat runs via cron, triggering a lightweight prompt that Hugo can act o
 |-----------|---------------|-----------|
 | Full server | Provider snapshot | Weekly |
 | Workspace files | rsync to dev + Git | Daily (4 AM) |
-| Clawdbot config | rsync to dev | Daily (4 AM) |
+| OpenClaw config | rsync to dev | Daily (4 AM) |
 | Secrets | 1Password vault | Real-time sync |
 | Session transcripts | rsync to dev (recent) | Daily (4 AM) |
 
@@ -194,7 +194,7 @@ The heartbeat runs via cron, triggering a lightweight prompt that Hugo can act o
 Hugo can update itself:
 ```
 # Hugo runs this when asked to update
-clawdbot update
+openclaw update
 ```
 
 The update process:
@@ -207,7 +207,7 @@ The update process:
 
 If an update breaks things:
 1. Git revert workspace changes
-2. Reinstall previous Clawdbot version
+2. Reinstall previous OpenClaw version
 3. Restart gateway
 
 Hugo can perform steps 1 and 3 autonomously; step 2 requires owner confirmation.
