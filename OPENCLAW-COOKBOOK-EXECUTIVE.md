@@ -6,13 +6,17 @@
 
 ## What is OpenClaw?
 
-OpenClaw (also known as Moltbot/Clawdbot) is an open-source gateway that lets you run your own AI assistant. Instead of using ChatGPT or Claude.ai in a browser, you get:
+OpenClaw (also known as Moltbot/Clawdbot) is an open-source platform that lets you run your own **always-on AI assistant**. Not a chatbot you visit when you need help — an autonomous agent that lives on your infrastructure, knows your context, and can act on your behalf.
 
-- **Multi-channel access** — Talk to your AI via Telegram, WhatsApp, Discord, web, or all of them
-- **Persistent memory** — The AI remembers you across sessions
-- **Tool access** — Connect to your calendar, email, files, APIs
-- **Custom rules** — Define exactly how your AI should behave
-- **Your own identity** — Give it a name, personality, even a social media presence
+Instead of opening ChatGPT or Claude.ai when you need something, your assistant:
+
+- **Runs 24/7** — Always available, always watching what you've asked it to monitor
+- **Remembers everything** — Persistent memory across days, weeks, months
+- **Acts autonomously** — Can do things *for* you, not just *with* you
+- **Reaches you anywhere** — Telegram, WhatsApp, Discord, web, email — all channels at once
+- **Connects to your systems** — Calendar, email, files, APIs, databases
+- **Follows your rules** — Define exactly what it can and can't do
+- **Has its own identity** — Give it a name, personality, even a social media presence
 
 ### The Tradeoffs
 
