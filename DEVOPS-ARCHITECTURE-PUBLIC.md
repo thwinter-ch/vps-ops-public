@@ -20,14 +20,15 @@ Rather than treating the AI as a stateless API consumer, Hugo operates as a pers
 
 ## Infrastructure Layout
 
-### Two-Server Model
+### Multi-Server Model
 
 | Role | Purpose | Provider |
 |------|---------|----------|
-| **Production** | Primary runtime, all user-facing traffic | VPS (EU region) |
-| **Development** | Testing, staging, backup standby | VPS (EU region) |
+| **Production (DE)** | Primary runtime, all user-facing traffic | VPS (EU region) |
+| **Development (DE)** | Testing, staging, backup standby | VPS (EU region) |
+| **Production (FR)** | Secondary production, additional agents | VPS (EU region) |
 
-Both servers run identical software stacks, allowing rapid failover if needed.
+All servers run identical software stacks, allowing rapid failover if needed.
 
 ### Software Stack
 
@@ -229,6 +230,53 @@ Hugo proactively notifies the owner via Telegram when:
 - An API returns repeated errors
 - A scheduled task fails
 
+### Weekly Security Scan
+
+A recurring security audit runs weekly to verify infrastructure posture:
+
+**Port Exposure Check:**
+- Verify Docker ports are bound to localhost only
+- Test that internal services are not reachable from internet
+- Confirm firewall rules are active
+
+**Service Health:**
+- OpenClaw gateway running
+- Cloudflare tunnels active
+- Docker containers healthy
+
+**Credential Audit:**
+- GitHub tokens are fine-grained PATs (not OAuth)
+- No plaintext secrets in config files
+- 1Password integration functioning
+
+The scan checklist lives in the private ops repo and can be executed by Claude on demand.
+
+## Repository Organization
+
+### Topic-Based Classification
+
+All infrastructure repositories use GitHub topics for discoverability:
+
+| Topic | Purpose |
+|-------|---------|
+| `vps-ops` | Core infrastructure: servers, agents, skills |
+| `contains-secrets` | Warning: repos with committed .env files |
+| `mcp` | MCP server integrations |
+| `trading` | Trading bot infrastructure |
+| `experiment` | Experimental/prototype projects |
+
+**Searching by topic (GitHub website):**
+1. Go to Repositories tab
+2. Type `topic:vps-ops` in search
+3. Or click any topic tag to filter
+
+### Archiving Policy
+
+Repos inactive for 12+ months are archived:
+- Read-only, still visible
+- Marked with "Archived" badge
+- Can be unarchived if needed later
+
 ## Lessons Learned
 
 1. **Git-managed workspace is essential** — Being able to rollback any change to Hugo's "personality" or rules has saved us multiple times.
@@ -254,4 +302,4 @@ Hugo proactively notifies the owner via Telegram when:
 *Key updates:*
 - *January 29, 2026: Security hardening after session confusion incident*
 - *January 30, 2026: nginx → Caddy migration*
-- *February 5, 2026: Fine-grained GitHub PATs, daily security monitoring*
+- *February 5, 2026: Third server (prod-fr), fine-grained GitHub PATs, weekly security scans, repository organization*
