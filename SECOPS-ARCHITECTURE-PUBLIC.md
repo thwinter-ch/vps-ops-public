@@ -488,6 +488,8 @@ Migrated from nginx reverse proxy to Cloudflare Tunnel + Access:
 - [x] **nginx decommissioned** (Jan 30, 2026)
 - [x] **Server IPs hidden from DNS** (Jan 30, 2026)
 - [x] **DDoS/WAF protection via Cloudflare** (Jan 30, 2026)
+- [x] **Daily security monitoring with public PSA reports** (Feb 5, 2026)
+- [x] **Dedicated #hugo-security Discord channel** (Feb 5, 2026)
 
 ### In Progress 🔄
 
@@ -504,6 +506,78 @@ Migrated from nginx reverse proxy to Cloudflare Tunnel + Access:
 - [ ] Hardware security key for owner authentication
 - [ ] VM/container isolation for bot runtime
 - [ ] Output guards for public channel integrations
+
+## Daily Security Monitoring
+
+### The Approach
+
+We run automated daily security scans to stay ahead of emerging threats. The process:
+
+```
+┌─────────────────────────────────────────────┐
+│         Daily Security Scan (08:30 CET)     │
+└──────────────────┬──────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────┐
+│  1. Research vulnerabilities affecting:     │
+│     - OpenClaw/AI agent frameworks          │
+│     - Node.js, web servers, Ubuntu          │
+│     - Prompt injection, AI security news    │
+└──────────────────┬──────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────┐
+│  2. Classify findings by severity           │
+│     - Critical: Immediate alert to owner    │
+│     - High/Medium: Daily briefing           │
+│     - Low/Info: Logged for reference        │
+└──────────────────┬──────────────────────────┘
+                   │
+        ┌──────────┴──────────┐
+        ▼                     ▼
+┌───────────────────┐ ┌───────────────────────┐
+│ Internal Briefing │ │   Public PSA Report   │
+│ (Discord channel) │ │ (GitHub - sanitized)  │
+└───────────────────┘ └───────────────────────┘
+```
+
+### Output Channels
+
+| Channel | Content | Audience |
+|---------|---------|----------|
+| **Discord #hugo-security** | Full briefing with action items | Internal (operator) |
+| **Telegram (critical only)** | Immediate alerts for urgent issues | Owner mobile |
+| **GitHub vps-ops-public** | Sanitized PSA report | Public community |
+| **Memory files** | Raw findings for historical reference | Internal |
+
+### Public Security Reports
+
+We publish daily security advisories to [vps-ops-public/security-reports](https://github.com/thwinter-ch/vps-ops-public/tree/main/security-reports) as a community service.
+
+**What's included:**
+- New CVEs relevant to AI assistant infrastructure
+- Security news and incident reports from the community
+- General recommendations and mitigations
+
+**What's NOT included:**
+- Our specific infrastructure details
+- Internal audit results
+- IP addresses, hostnames, or configurations
+
+Each report includes a disclaimer that it's a public service advisory, not an analysis of any specific system.
+
+### Why This Matters
+
+The AI agent ecosystem is evolving rapidly. New vulnerabilities emerge constantly:
+- OpenClaw/Clawdbot framework issues
+- Prompt injection techniques
+- Malicious skills in community registries
+- Infrastructure CVEs that affect agent hosts
+
+Proactive monitoring catches issues before they become incidents.
+
+---
 
 ## Key Takeaways
 
@@ -525,10 +599,11 @@ Migrated from nginx reverse proxy to Cloudflare Tunnel + Access:
 
 ---
 
-*Last updated: January 30, 2026*
+*Last updated: February 5, 2026*
 
 *This security architecture has been reviewed and tested in production. Major hardening events:*
 - *January 29, 2026: Behavioral boundaries after session confusion incident*
 - *January 30, 2026: Cloudflare Tunnel migration — zero public ports, nginx eliminated*
+- *February 5, 2026: Daily security monitoring with public PSA reports*
 
 *We maintain ongoing security research and track vulnerabilities in our Hugo SecOps database.*
