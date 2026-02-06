@@ -126,8 +126,10 @@ If your AI engages publicly (social media, public channels), assume every messag
 A virtual private server — a computer in the cloud that runs 24/7.
 
 - 4GB memory minimum, 8GB comfortable
-- Providers: Hostinger, Hetzner, DigitalOcean
+- Providers: [Hostinger](https://hostinger.de?REFERRALCODE=6RDWINTERGPP), Hetzner, DigitalOcean
 - **Cost: $5-10/month**
+
+> *The Hostinger link is a referral — you get a discount, we get a small kickback. All three providers work fine.*
 
 ### Password Manager
 

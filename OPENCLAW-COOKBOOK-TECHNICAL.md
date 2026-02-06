@@ -8,7 +8,7 @@
 
 | Requirement | Purpose |
 |-------------|---------|
-| VPS account | Hostinger, Hetzner, DigitalOcean ($5-10/month) |
+| VPS account | [Hostinger](https://hostinger.de?REFERRALCODE=6RDWINTERGPP), Hetzner, DigitalOcean ($5-10/month) |
 | Domain name | For clean URLs (assistant.yourdomain.com) |
 | Password manager | 1Password, Bitwarden, or similar |
 | Anthropic API key | For Claude access |
