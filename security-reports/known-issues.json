@@ -1,0 +1,58 @@
+{
+  "lastUpdated": "2026-02-10T18:02:00Z",
+  "issues": [
+    {
+      "id": "CVE-2026-25253",
+      "title": "OpenClaw Remote Code Execution",
+      "severity": "HIGH",
+      "cvss": 8.8,
+      "firstSeen": "2026-02-06",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.6-3",
+      "patchedIn": "2026.1.29",
+      "notes": "Token exfiltration via malicious links. We are patched.",
+      "reportAgainIf": [
+        "Active exploitation detected",
+        "Patch bypass discovered",
+        "New related CVE"
+      ]
+    },
+    {
+      "id": "CLAWHUB-MALWARE-2026-01",
+      "title": "ClawHub Malicious Skills Campaign",
+      "severity": "HIGH",
+      "firstSeen": "2026-02-08",
+      "status": "ongoing",
+      "ourStatus": "mitigated",
+      "affectedCount": "400+",
+      "notes": "Mass malware campaign Jan 27-Feb 2. We only install vetted skills.",
+      "reportAgainIf": [
+        "New wave of malicious skills",
+        "ClawHub implements verification system",
+        "One of our installed skills flagged"
+      ]
+    },
+    {
+      "id": "CVE-2026-1642",
+      "title": "nginx SSL Upstream Injection",
+      "severity": "MEDIUM",
+      "firstSeen": "2026-02-08",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "notes": "We don't run nginx (using cloudflared).",
+      "reportAgainIf": [
+        "We start running nginx",
+        "Affects cloudflared"
+      ]
+    }
+  ],
+  "deduplicationRules": {
+    "description": "Only report an issue from known-issues.json if one of the 'reportAgainIf' conditions is met, or if there is a meaningful status change (e.g., patch released, active exploitation, affects our infrastructure).",
+    "alwaysReport": [
+      "New CVEs not in this file",
+      "Zero-day announcements",
+      "Active exploitation of issues affecting us"
+    ]
+  }
+}
