@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-10T18:02:00Z",
+  "lastUpdated": "2026-02-11T07:30:00Z",
   "issues": [
     {
       "id": "CVE-2026-25253",
@@ -9,13 +9,60 @@
       "firstSeen": "2026-02-06",
       "status": "patched",
       "ourStatus": "safe",
-      "ourVersion": "2026.2.6-3",
+      "ourVersion": "2026.2.9",
       "patchedIn": "2026.1.29",
       "notes": "Token exfiltration via malicious links. We are patched.",
       "reportAgainIf": [
         "Active exploitation detected",
         "Patch bypass discovered",
         "New related CVE"
+      ]
+    },
+    {
+      "id": "CVE-2026-24763",
+      "title": "OpenClaw Command Injection",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-11",
+      "status": "investigating",
+      "ourStatus": "unknown",
+      "ourVersion": "2026.2.9",
+      "patchedIn": "unknown",
+      "notes": "Command injection vulnerability. Public exploit code available. Monitoring for patch.",
+      "reportAgainIf": [
+        "Patch released",
+        "Active exploitation detected",
+        "Severity/CVSS score published"
+      ]
+    },
+    {
+      "id": "CVE-2026-25157",
+      "title": "OpenClaw SSH Command Injection (macOS)",
+      "severity": "HIGH",
+      "cvss": 7.8,
+      "firstSeen": "2026-02-11",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.2.9",
+      "patchedIn": "unknown",
+      "notes": "SSH command injection in macOS app. We run Linux only, not affected.",
+      "reportAgainIf": [
+        "Linux variant discovered",
+        "We start running macOS"
+      ]
+    },
+    {
+      "id": "OPENCLAW-EXPOSURE-2026-02",
+      "title": "Mass OpenClaw Internet Exposure",
+      "severity": "CRITICAL",
+      "firstSeen": "2026-02-11",
+      "status": "ongoing",
+      "ourStatus": "safe",
+      "affectedCount": "42,900+",
+      "notes": "42.9K exposed instances globally, 15.2K vulnerable to RCE. We are localhost-only, not exposed.",
+      "reportAgainIf": [
+        "Our instance appears in exposure scans",
+        "New attack vectors targeting localhost deployments"
       ]
     },
     {
