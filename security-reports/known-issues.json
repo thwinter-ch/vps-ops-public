@@ -1,6 +1,49 @@
 {
-  "lastUpdated": "2026-02-12T07:30:00Z",
+  "lastUpdated": "2026-02-19T07:30:00Z",
   "issues": [
+    {
+      "id": "OPENCLAW-INFOSTEALER-2026-02",
+      "title": "Vidar Infostealer Stealing OpenClaw Config Files (First In-the-Wild)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-18",
+      "incidentDate": "2026-02-13",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "First confirmed in-the-wild Vidar infostealer variant stealing OpenClaw config files (incident: Feb 13, 2026; reported: Feb 16-17 by BleepingComputer, THN, CybersecurityNews). NOT a targeted OpenClaw attack — broad file-grabbing routine scanning for 'token'/'private key' keywords and '.openclaw' directory. Stolen: openclaw.json (gateway tokens), device.json (private keys), soul.md, memory files. Our risk: server-side Linux deployment — primary infection vector is workstation malware. We have no interactive user sessions on the server. Still: if server were compromised, all these files would be at risk. Recommend: verify file permissions on /root/clawd, review any token rotation schedule.",
+      "sources": [
+        "https://www.bleepingcomputer.com/news/security/infostealer-malware-found-stealing-openclaw-secrets-for-first-time/",
+        "https://thehackernews.com/2026/02/infostealer-steals-openclaw-ai-agent.html",
+        "https://cybersecuritynews.com/threat-actors-attacking-openclaw-configurations/"
+      ],
+      "addedAt": "2026-02-18T07:30:00Z",
+      "reportAgainIf": [
+        "OpenClaw-specific infostealer module released (targeted attack)",
+        "Our tokens appear in any breach database",
+        "Broad file-grab campaign specifically targeting servers (not workstations)",
+        "OpenClaw releases mitigation (e.g., encrypted config, token rotation)"
+      ]
+    },
+    {
+      "id": "CVE-2026-2391",
+      "title": "Node.js qs Library Comma Parsing DoS",
+      "severity": "MEDIUM",
+      "cvss": 6.3,
+      "firstSeen": "2026-02-18",
+      "publishedDate": "2026-02-12",
+      "status": "unpatched",
+      "ourStatus": "likely-not-applicable",
+      "notes": "Logic flaw in Node.js 'qs' library (query string parser). When comma parsing is enabled, crafted requests with thousands of commas force massive array allocations, causing DoS/crash. Published Feb 12 2026. We run Node.js v22.22.0. Our exposure is low: we don't run a user-facing HTTP server with qs query string processing. If openclaw or any dependency uses qs with comma parsing enabled, we could be affected. No patch confirmed yet.",
+      "sources": [
+        "https://dev.to/cverports/cve-2026-2391-death-by-a-thousand-commas-deep-dive-into-cve-2026-2391-1e42"
+      ],
+      "addedAt": "2026-02-18T07:30:00Z",
+      "reportAgainIf": [
+        "Patch released for qs library",
+        "Active exploitation confirmed",
+        "We confirm we use qs with comma parsing enabled"
+      ]
+    },
     {
       "id": "CVE-2026-25253",
       "title": "OpenClaw Remote Code Execution",
@@ -9,7 +52,7 @@
       "firstSeen": "2026-02-06",
       "status": "patched",
       "ourStatus": "safe",
-      "ourVersion": "2026.2.9",
+      "ourVersion": "2026.2.15",
       "patchedIn": "2026.1.29",
       "notes": "Token exfiltration via malicious links. We are patched.",
       "reportAgainIf": [
@@ -24,14 +67,15 @@
       "severity": "HIGH",
       "cvss": 8.8,
       "firstSeen": "2026-02-11",
-      "status": "investigating",
-      "ourStatus": "unknown",
-      "ourVersion": "2026.2.9",
-      "patchedIn": "unknown",
-      "notes": "Docker sandbox escape via PATH manipulation. Allows agent to break out of containerized environment and access host system. Public exploit code available. Monitoring for patch.",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.15",
+      "patchedIn": "2026.1.29",
+      "notes": "Docker sandbox escape via PATH manipulation. PATCH CONFIRMED in 2026.1.29 (announced 2026-02-09 by SecurityScorecard/The Register). We run 2026.2.15, fully patched. Public PoC remains available on GitHub.",
+      "updatedAt": "2026-02-17T07:30:00Z",
       "reportAgainIf": [
-        "Patch released",
-        "Active exploitation detected"
+        "Patch bypass discovered",
+        "Active exploitation of patched versions"
       ]
     },
     {
@@ -42,7 +86,7 @@
       "firstSeen": "2026-02-11",
       "status": "patched",
       "ourStatus": "not-applicable",
-      "ourVersion": "2026.2.9",
+      "ourVersion": "2026.2.15",
       "patchedIn": "unknown",
       "notes": "SSH command injection in macOS app. We run Linux only, not affected.",
       "reportAgainIf": [
@@ -57,8 +101,9 @@
       "firstSeen": "2026-02-11",
       "status": "ongoing",
       "ourStatus": "safe",
-      "affectedCount": "40,214",
-      "notes": "40.2K exposed instances globally (updated 2026-02-12), 15.2K vulnerable to RCE. We are localhost-only, not exposed. 33.8% correlation with APT groups (Kimsuky, APT28).",
+      "affectedCount": "135,000+",
+      "notes": "Exposure count grew from 40.2K (Feb 12) to 135,000+ as of Feb 9 (SecurityScorecard / The Register). ~15K vulnerable to RCE. We are localhost-only, not exposed. APT correlation still present (Kimsuky, APT28). OpenAI acquisition of OpenClaw (Feb 15) may affect future security posture.",
+      "updatedAt": "2026-02-17T07:30:00Z",
       "reportAgainIf": [
         "Our instance appears in exposure scans",
         "New attack vectors targeting localhost deployments"
@@ -71,8 +116,9 @@
       "firstSeen": "2026-02-08",
       "status": "ongoing",
       "ourStatus": "mitigated",
-      "affectedCount": "400+",
-      "notes": "Mass malware campaign Jan 27-Feb 2. We only install vetted skills.",
+      "affectedCount": "824+",
+      "notes": "Second wave confirmed Feb 2-13 2026: 341 new malicious skills (The Hacker News), additional hundreds tracked by VirusTotal and Bitdefender. Automated upload scripts still active as of early Feb (Bitdefender). Targeting macOS/Windows. Our installed skills (youtube-extraction, ai-creator-scan) verified legitimate. Conscia report (Feb 18, 2026) now confirms 824+ malicious skills across an expanded registry of 10,700+ (~20% of registry). Still install vetted skills only.",
+      "updatedAt": "2026-02-19T07:30:00Z",
       "reportAgainIf": [
         "New wave of malicious skills",
         "ClawHub implements verification system",
@@ -90,6 +136,78 @@
       "reportAgainIf": [
         "We start running nginx",
         "Affects cloudflared"
+      ]
+    },
+    {
+      "id": "NODEJS-SEC-2026-01",
+      "title": "Node.js January 2026 Security Release (Multiple High CVEs)",
+      "severity": "HIGH",
+      "firstSeen": "2026-01-13",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "22.22.0",
+      "patchedIn": "22.22.0",
+      "notes": "Jan 13 2026 release patched 3 High + 4 Medium CVEs: CVE-2025-55131 (buffer uninitialized memory), CVE-2025-55130 (fs permission bypass via symlinks), CVE-2025-59465 (HTTP/2 DoS crash), CVE-2026-21636 (UDS permission bypass). We run v22.22.0 which IS the security patch release.",
+      "addedAt": "2026-02-17T07:30:00Z",
+      "reportAgainIf": [
+        "New Node.js 22.x CVE released",
+        "We downgrade Node version"
+      ]
+    },
+    {
+      "id": "OPENCLAW-ACQUISITION-2026-02",
+      "title": "OpenAI Acquires OpenClaw / Peter Steinberger Joins OpenAI",
+      "severity": "INFO",
+      "firstSeen": "2026-02-15",
+      "status": "confirmed",
+      "ourStatus": "monitoring",
+      "notes": "Sam Altman announced Feb 15/16 2026: Peter Steinberger (OpenClaw creator) joining OpenAI. OpenClaw to transition to open-source foundation with OpenAI support. Security implications: update cadence, governance, and code ownership may change. Monitor for changes to update/release policy.",
+      "addedAt": "2026-02-17T07:30:00Z",
+      "reportAgainIf": [
+        "Breaking changes to update distribution",
+        "Security policy changes under OpenAI",
+        "Project abandoned or development stalls"
+      ]
+    },
+    {
+      "id": "AI-RECOMMENDATION-POISONING-2026-02",
+      "title": "AI Recommendation Poisoning via Hidden Prompt Injection in Web Content",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-02-19",
+      "publishedDate": "2026-02-10",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "Microsoft Security Blog (Feb 10, 2026): 31 companies discovered embedding hidden instructions in 'Summarize with AI' buttons. When clicked, these inject persistence commands into AI assistant memory via URL prompt parameters (MITRE ATLAS AML.T0080, AML.T0051). Goal: bias AI recommendations toward their products. Directly relevant to OpenClaw deployments with memory tools and web browsing. Our setup: Hugo has web browsing capability, memory system (MEMORY.md, daily notes). Risk: malicious page visited during web research could inject into memory. Mitigations: we don't have persistent cross-session 'AI memory' in the cloud-sync sense; memory is file-based and reviewed by Thomas. Still: be cautious when browsing unknown pages with explicit instructions to 'remember' things.",
+      "sources": [
+        "https://www.microsoft.com/en-us/security/blog/2026/02/10/ai-recommendation-poisoning/"
+      ],
+      "addedAt": "2026-02-19T07:30:00Z",
+      "reportAgainIf": [
+        "Specific OpenClaw memory poisoning PoC published",
+        "Exploitation confirmed against local AI agents",
+        "ATLAS updates guidance for this vector"
+      ]
+    },
+    {
+      "id": "PROMPTWARE-KILL-CHAIN-2026-02",
+      "title": "Promptware Kill Chain Framework — Indirect Prompt Injection as Multi-Stage Attack",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-02-19",
+      "publishedDate": "2026-02-13",
+      "status": "informational",
+      "ourStatus": "low-risk",
+      "notes": "Lawfare/Schneier (Feb 13-14, 2026), arxiv paper: Researchers formalize a 7-step kill chain for 'promptware' attacks on LLM-based systems. Key insight: indirect prompt injection (via web pages, emails, documents, images) is more dangerous than direct injection, allowing C2-style persistent control of AI agents. Multimodal inputs (images, audio) expand the attack surface. Directly relevant to autonomous AI agents like OpenClaw. No new CVE; this is academic framing. Our mitigations: external content is wrapped with UNTRUSTED warnings in our config, system prompts enforce safety rules. Thomas reviews memory files.",
+      "sources": [
+        "https://www.lawfaremedia.org/article/the-promptware-kill-chain",
+        "https://www.schneier.com/essays/archives/2026/02/the-promptware-kill-chain.html",
+        "https://arxiv.org/abs/2601.09625"
+      ],
+      "addedAt": "2026-02-19T07:30:00Z",
+      "reportAgainIf": [
+        "OpenClaw-specific kill chain PoC or active exploit published",
+        "Specific mitigation or patch released for this class of attack"
       ]
     }
   ],
