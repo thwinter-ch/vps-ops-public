@@ -1,6 +1,28 @@
 {
-  "lastUpdated": "2026-02-19T07:30:00Z",
+  "lastUpdated": "2026-02-20T12:35:00Z",
   "issues": [
+    {
+      "id": "ENDOR-LABS-OPENCLAW-2026-02",
+      "title": "Six OpenClaw Vulnerabilities (Endor Labs Research)",
+      "severity": "HIGH",
+      "firstSeen": "2026-02-20",
+      "publishedDate": "2026-02-18",
+      "status": "patched",
+      "ourStatus": "likely-safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026.2.17",
+      "notes": "Endor Labs disclosed six vulnerabilities on Feb 18, 2026: CVE-2026-26322 (SSRF in Gateway tool, CVSS 7.6), CVE-2026-26319 (missing Telnyx webhook auth, CVSS 7.5), CVE-2026-26329 (path traversal in browser upload, HIGH), GHSA-56f2-hvwg-5743 (SSRF in image tool, CVSS 7.6), GHSA-pg2v-8xwh-qhcc (SSRF in Urbit auth, CVSS 6.5), GHSA-c37p-4qqg-3p76 (Twilio webhook auth bypass, CVSS 6.5). Patched in 2026.2.17 per CybersecurityNews report. We run 2026.2.19-2 (newer). Our exposure: Gateway/image/browser tools potentially in use; we do NOT use Telnyx, Urbit, or Twilio. Key lesson: Validation must occur at every layer; LLM outputs and tool parameters are attack surfaces.",
+      "sources": [
+        "https://www.infosecurity-magazine.com/news/researchers-six-new-openclaw/",
+        "https://www.endorlabs.com/learn/how-ai-sast-traced-data-flows-to-uncover-six-openclaw-vulnerabilities"
+      ],
+      "addedAt": "2026-02-20T07:30:00Z",
+      "reportAgainIf": [
+        "Patch bypass discovered",
+        "Active exploitation confirmed",
+        "We confirm vulnerability in 2026.2.19-2"
+      ]
+    },
     {
       "id": "OPENCLAW-INFOSTEALER-2026-02",
       "title": "Vidar Infostealer Stealing OpenClaw Config Files (First In-the-Wild)",
@@ -10,7 +32,7 @@
       "incidentDate": "2026-02-13",
       "status": "active",
       "ourStatus": "low-risk",
-      "notes": "First confirmed in-the-wild Vidar infostealer variant stealing OpenClaw config files (incident: Feb 13, 2026; reported: Feb 16-17 by BleepingComputer, THN, CybersecurityNews). NOT a targeted OpenClaw attack — broad file-grabbing routine scanning for 'token'/'private key' keywords and '.openclaw' directory. Stolen: openclaw.json (gateway tokens), device.json (private keys), soul.md, memory files. Our risk: server-side Linux deployment — primary infection vector is workstation malware. We have no interactive user sessions on the server. Still: if server were compromised, all these files would be at risk. Recommend: verify file permissions on /root/clawd, review any token rotation schedule.",
+      "notes": "First confirmed in-the-wild Vidar infostealer variant stealing OpenClaw config files (incident: Feb 13, 2026; reported: Feb 16-17 by BleepingComputer, THN, CybersecurityNews). NOT a targeted OpenClaw attack \u2014 broad file-grabbing routine scanning for 'token'/'private key' keywords and '.openclaw' directory. Stolen: openclaw.json (gateway tokens), device.json (private keys), soul.md, memory files. Our risk: server-side Linux deployment \u2014 primary infection vector is workstation malware. We have no interactive user sessions on the server. Still: if server were compromised, all these files would be at risk. Recommend: verify file permissions on /root/clawd, review any token rotation schedule.",
       "sources": [
         "https://www.bleepingcomputer.com/news/security/infostealer-malware-found-stealing-openclaw-secrets-for-first-time/",
         "https://thehackernews.com/2026/02/infostealer-steals-openclaw-ai-agent.html",
@@ -191,7 +213,7 @@
     },
     {
       "id": "PROMPTWARE-KILL-CHAIN-2026-02",
-      "title": "Promptware Kill Chain Framework — Indirect Prompt Injection as Multi-Stage Attack",
+      "title": "Promptware Kill Chain Framework \u2014 Indirect Prompt Injection as Multi-Stage Attack",
       "severity": "INFO",
       "cvss": null,
       "firstSeen": "2026-02-19",
@@ -208,6 +230,67 @@
       "reportAgainIf": [
         "OpenClaw-specific kill chain PoC or active exploit published",
         "Specific mitigation or patch released for this class of attack"
+      ]
+    },
+    {
+      "id": "CVE-2026-26322",
+      "title": "OpenClaw SSRF in Gateway tool",
+      "severity": "HIGH",
+      "cvss": 7.6,
+      "firstSeen": "2026-02-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026.2.19",
+      "notes": "SSRF via Gateway tool. Fixed in 2026.2.19 via fetchWithSsrFGuard. Source: Endor Labs (Feb 18).",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Affects our version"
+      ]
+    },
+    {
+      "id": "CVE-2026-26329",
+      "title": "OpenClaw path traversal in browser upload",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026.2.19",
+      "notes": "Path traversal via browser upload endpoint. Fixed in 2026.2.19. Source: Endor Labs (Feb 18).",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-25639",
+      "title": "Axios DoS via __proto__ in mergeConfig (CVSS 7.5)",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-02-19",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "axios 1.13.5",
+      "patchedIn": "axios 1.13.5",
+      "notes": "clawdbot had axios 1.13.3 (vulnerable). Updated to 1.13.5 on 2026-02-20.",
+      "reportAgainIf": [
+        "New axios DoS variant discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-0861",
+      "title": "glibc memalign integer overflow",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-19",
+      "status": "unpatched",
+      "ourStatus": "vulnerable-no-fix-yet",
+      "affectedVersion": "glibc 2.39",
+      "notes": "Heap corruption via large alignment values. We are on vulnerable glibc 2.39. No Ubuntu patch available yet as of Feb 20.",
+      "reportAgainIf": [
+        "Ubuntu patch released",
+        "Active exploitation detected"
       ]
     }
   ],
