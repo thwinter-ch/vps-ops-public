@@ -1,6 +1,163 @@
 {
-  "lastUpdated": "2026-02-20T12:35:00Z",
+  "lastUpdated": "2026-04-03T06:30:00Z",
   "issues": [
+    {
+      "id": "OPENCLAW-0CLICK-GATEWAY-2026-03",
+      "title": "OpenClaw 0-Click Gateway WebSocket Hijack / ClawJacked (Oasis Security)",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-02",
+      "publishedDate": "2026-03-01",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.25",
+      "notes": "Zero-interaction vulnerability discovered by Oasis Security, now officially named 'ClawJacked'. Malicious websites can hijack OpenClaw via WebSocket gateway brute-force. Browser JavaScript connects to ws://localhost gateway (cross-origin WebSocket to loopback is allowed), then brute-forces password. Gateway rate limiter exempts localhost, enabling rapid guessing. Patched in 2026.2.25 (released Feb 26, 2026). Massive media coverage (THN, SecurityWeek, TechRadar, SecurityAffairs, Cyberwarzone). We run 2026.3.2 \u2014 safe.",
+      "sources": [
+        "https://cybersecuritynews.com/openclaw-0-click-vulnerability/",
+        "https://www.itsecuritynews.info/openclaw-0-click-vulnerability-allows-malicious-websites-to-hijack-developer-ai-agents/",
+        "https://thehackernews.com/2026/02/clawjacked-flaw-lets-malicious-sites.html",
+        "https://www.oasis.security/blog/openclaw-vulnerability",
+        "https://securityaffairs.com/188749/hacking/clawjacked-flaw-exposed-openclaw-users-to-data-theft.html"
+      ],
+      "addedAt": "2026-03-02T07:30:00Z",
+      "updatedAt": "2026-03-05T07:30:00Z",
+      "reportAgainIf": [
+        "Patch bypass discovered",
+        "Active exploitation confirmed despite patch"
+      ]
+    },
+    {
+      "id": "CVE-2026-27488",
+      "title": "OpenClaw Cron Webhook SSRF",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-22",
+      "publishedDate": "2026-02-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026.2.19",
+      "notes": "Cron webhook delivery in src/gateway/server-cron.ts used fetch() directly without SSRF policy checks. Webhook targets could reach private/metadata/internal endpoints. Patched in 2026.2.19 via commits 99db4d13e and 35851cdaf. Thanks @Adam55A-code for reporting.",
+      "sources": [
+        "https://advisories.gitlab.com/pkg/npm/openclaw/CVE-2026-27488/",
+        "https://github.com/advisories/GHSA-w45g-5746-x9fp"
+      ],
+      "addedAt": "2026-02-22T07:30:00Z",
+      "reportAgainIf": [
+        "Patch bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-27001",
+      "title": "OpenClaw Workspace Path Prompt Injection",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-22",
+      "publishedDate": "2026-02-19",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026.2.15",
+      "notes": "OpenClaw embedded current working directory (workspace path) into agent system prompt without sanitization. Attacker could cause OpenClaw to run in directory with control/format characters (newlines, Unicode bidi/zero-width markers) to inject attacker-controlled instructions. Fixed in 2026.2.15 via workspace path sanitization before LLM prompt output, stripping Unicode control/format characters and line/paragraph separators.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-27001-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-02-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar prompt injection vectors discovered"
+      ]
+    },
+    {
+      "id": "OPENCLAW-PATH-TRAVERSAL-DOWNLOAD-2026-02",
+      "title": "OpenClaw Path Traversal in Browser Download",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-22",
+      "publishedDate": "2026-02-18",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026.2.13",
+      "notes": "Path traversal in browser download helpers (waitForDownloadViaPlaywright, downloadViaPlaywright) in src/browser/pw-tools-core.downloads.ts. Accepted unsanitized output path via gateway routes /wait/download and /download. Attacker with authenticated CLI access or valid gateway RPC token could write files to arbitrary locations (../../../../tmp/evil.exe). Fixed in 2026.2.13 by restricting output path to DEFAULT_DOWNLOAD_DIR using resolvePathWithinRoot function. Affects versions 2026.1.12 - 2026.2.12.",
+      "sources": [
+        "https://dailycve.com/openclaw-path-traversal-cve-2026-xxxxx-high-2/",
+        "https://github.com/advisories/GHSA-xwjm-j929-xq7c"
+      ],
+      "addedAt": "2026-02-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar path traversal vectors found"
+      ]
+    },
+    {
+      "id": "OPENCLAW-PATH-TRAVERSAL-BLUEBUBBLES-2026-02",
+      "title": "OpenClaw Path Traversal in BlueBubbles Extension",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-22",
+      "publishedDate": "2026-02-18",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026.2.14",
+      "notes": "sendBlueBubblesMedia function improperly handled mediaPath parameter. Non-HTTP media source resolved as local filesystem path and read directly without validation. Allowed arbitrary file read (../../../../etc/passwd) and exfiltration as media attachments. Fixed in 2026.2.14 (commit 71f357d) via required config setting (channels.bluebubbles.mediaLocalRoots) defining trusted directories and canonical-path containment checks. Affects < 2026.2.14.",
+      "sources": [
+        "https://dailycve.com/openclaw-path-traversal-cve-2026-xxxx-high/",
+        "https://github.com/advisories/GHSA-rwj8-p9vq-25gv"
+      ],
+      "addedAt": "2026-02-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "We start using BlueBubbles channel"
+      ]
+    },
+    {
+      "id": "OPENCLAW-SANDBOX-BROWSER-AUTH-2026-02",
+      "title": "OpenClaw Missing Authentication in Sandbox Browser Bridge",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-02-22",
+      "publishedDate": "2026-02-18",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026-02-14",
+      "notes": "Sandboxed browser feature starts local HTTP bridge server bound to localhost without authentication. Exposes /profiles, /tabs, /agent/ endpoints. Local processes could enumerate tabs to retrieve CDP WebSocket URLs, then execute arbitrary JavaScript, exfiltrate cookies/sessions. Limited to localhost (CVSS AV:L) but provides full compromise of browser sessions. Introduced in 2026.1.29-beta.1, patched 2026-02-14.",
+      "sources": [
+        "https://dailycve.com/openclaw-npm-missing-authentication-cve-2026-xxxx-high/",
+        "https://github.com/advisories/GHSA-h9g4-589h-68xv"
+      ],
+      "addedAt": "2026-02-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Network-based variant discovered"
+      ]
+    },
+    {
+      "id": "OPENCLAW-DOCKER-CONFIG-INJECTION-2026-02",
+      "title": "OpenClaw Docker Sandbox Configuration Injection",
+      "severity": "HIGH",
+      "cvss": 8.1,
+      "firstSeen": "2026-02-22",
+      "publishedDate": "2026-02-18",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.2.19-2",
+      "patchedIn": "2026.2.15",
+      "notes": "Insufficient validation of Docker sandbox config parameters when constructing docker create arguments. Attacker who can influence config could inject: bind mounts to sensitive paths (/etc, /proc, /sys, /dev, /var/run/docker.sock), network=host (removes network isolation), seccompProfile=unconfined, apparmorProfile=unconfined (disables kernel security). Complete container escape possible. Affects <= 2026.2.14. Fixed in 2026.2.15 via runtime enforcement, config-schema validation blocking dangerous options, and security audit findings.",
+      "sources": [
+        "https://dailycve.com/openclaw-docker-sandbox-configuration-injection-cve-2026-xxxxx-high/",
+        "https://github.com/advisories/GHSA-w235-x559-36mg"
+      ],
+      "addedAt": "2026-02-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Social engineering campaign targeting OpenClaw configs"
+      ]
+    },
     {
       "id": "ENDOR-LABS-OPENCLAW-2026-02",
       "title": "Six OpenClaw Vulnerabilities (Endor Labs Research)",
@@ -44,6 +201,28 @@
         "Our tokens appear in any breach database",
         "Broad file-grab campaign specifically targeting servers (not workstations)",
         "OpenClaw releases mitigation (e.g., encrypted config, token rotation)"
+      ]
+    },
+    {
+      "id": "CVE-2026-2441",
+      "title": "Chrome/Chromium CSS UAF RCE (Actively Exploited)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-02",
+      "publishedDate": "2026-02-24",
+      "status": "patched",
+      "ourStatus": "safe",
+      "notes": "Use-after-free in Chromium CSS engine (CSSFontFeatureValuesMap) allowing RCE via malicious web content. Actively exploited in-the-wild. Google Chrome updated to 145.0.7632.159 (patched). Confirmed patched on our system as of 2026-03-07 \u2014 Chrome 145.0.7632.159 installed.",
+      "sources": [
+        "https://orca.security/resources/blog/cve-2026-2441-chrome-chromium-zero-day-vulnerability/",
+        "https://security.lookout.com/threat-intelligence/article/multiapp-cve-2026-2441"
+      ],
+      "addedAt": "2026-03-02T07:30:00Z",
+      "updatedAt": "2026-03-05T07:30:00Z",
+      "reportAgainIf": [
+        "We confirm update applied",
+        "Playwright/Chromium snap update available",
+        "Confirmed exploitation in browser automation contexts"
       ]
     },
     {
@@ -124,8 +303,8 @@
       "status": "ongoing",
       "ourStatus": "safe",
       "affectedCount": "135,000+",
-      "notes": "Exposure count grew from 40.2K (Feb 12) to 135,000+ as of Feb 9 (SecurityScorecard / The Register). ~15K vulnerable to RCE. We are localhost-only, not exposed. APT correlation still present (Kimsuky, APT28). OpenAI acquisition of OpenClaw (Feb 15) may affect future security posture.",
-      "updatedAt": "2026-02-17T07:30:00Z",
+      "notes": "Exposure count grew from 40.2K to 135,000+ (SecurityScorecard/The Register). China CNCERT now confirms 40,000+ exposed instances globally. Chinese government banned OpenClaw on state devices and ordered port audits. 60%+ of exposed instances vulnerable to immediate takeover. We are localhost-only, not exposed. APT correlation still present (Kimsuky, APT28).",
+      "updatedAt": "2026-03-13T07:30:00Z",
       "reportAgainIf": [
         "Our instance appears in exposure scans",
         "New attack vectors targeting localhost deployments"
@@ -138,9 +317,9 @@
       "firstSeen": "2026-02-08",
       "status": "ongoing",
       "ourStatus": "mitigated",
-      "affectedCount": "824+",
-      "notes": "Second wave confirmed Feb 2-13 2026: 341 new malicious skills (The Hacker News), additional hundreds tracked by VirusTotal and Bitdefender. Automated upload scripts still active as of early Feb (Bitdefender). Targeting macOS/Windows. Our installed skills (youtube-extraction, ai-creator-scan) verified legitimate. Conscia report (Feb 18, 2026) now confirms 824+ malicious skills across an expanded registry of 10,700+ (~20% of registry). Still install vetted skills only.",
-      "updatedAt": "2026-02-19T07:30:00Z",
+      "affectedCount": "1184+",
+      "notes": "Second wave confirmed Feb 2-13 2026: 341 new malicious skills (The Hacker News), additional hundreds tracked by VirusTotal and Bitdefender. Automated upload scripts still active as of early Feb (Bitdefender). Targeting macOS/Windows. Our installed skills (youtube-extraction, ai-creator-scan) verified legitimate. Conscia report (Feb 18, 2026) now confirms 824+ malicious skills across an expanded registry of 10,700+ (~20% of registry). March update: Koi Security audit confirmed 341 malicious entries tied to 'ClawHavoc' campaign delivering Atomic Stealer. Nebius blog notes some skills wrote malicious content into MEMORY.md and SOUL.md for persistent cross-session effect. Campaign now extends beyond ClawHub to fake GitHub repos (see BING-AI-FAKE-OPENCLAW-2026-03). Still install vetted skills only.",
+      "updatedAt": "2026-03-10T07:30:00Z",
       "reportAgainIf": [
         "New wave of malicious skills",
         "ClawHub implements verification system",
@@ -167,9 +346,9 @@
       "firstSeen": "2026-01-13",
       "status": "patched",
       "ourStatus": "safe",
-      "ourVersion": "22.22.0",
+      "ourVersion": "22.22.1",
       "patchedIn": "22.22.0",
-      "notes": "Jan 13 2026 release patched 3 High + 4 Medium CVEs: CVE-2025-55131 (buffer uninitialized memory), CVE-2025-55130 (fs permission bypass via symlinks), CVE-2025-59465 (HTTP/2 DoS crash), CVE-2026-21636 (UDS permission bypass). We run v22.22.0 which IS the security patch release.",
+      "notes": "Jan 13 2026 release patched 3 High + 4 Medium CVEs: CVE-2025-55131 (buffer uninitialized memory), CVE-2025-55130 (fs permission bypass via symlinks), CVE-2025-59465 (HTTP/2 DoS crash), CVE-2026-21636 (UDS permission bypass). We now run v22.22.1 (released March 5, 2026) which includes further bug fixes on top of the security patch.",
       "addedAt": "2026-02-17T07:30:00Z",
       "reportAgainIf": [
         "New Node.js 22.x CVE released",
@@ -279,18 +458,2531 @@
       ]
     },
     {
+      "id": "OPENCLAW-UI-PAIRING-BYPASS-2026-03",
+      "title": "OpenClaw Trusted-Proxy UI Pairing Bypass",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-05",
+      "publishedDate": "2026-03-03",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.25",
+      "notes": "Trusted-proxy authentication bypass. Node-role WebSocket client can set client.id=control-ui to skip device pairing and access node event methods without operator privileges. Fixed by requiring role===operator for trusted-proxy flow. Commit ec45c317f5d0631a3d333b236da58c4749ede2a3.",
+      "sources": [
+        "https://dailycve.com/openclaw-authentication-bypass-cve-2026-xxxxx-critical/",
+        "https://github.com/advisories/GHSA-vvgp-4c28-m3jm"
+      ],
+      "addedAt": "2026-03-05T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "CVE number assigned"
+      ]
+    },
+    {
+      "id": "CVE-2026-28363",
+      "title": "OpenClaw GNU Long-Option Abbreviation Allowlist Bypass",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-05",
+      "publishedDate": "2026-02-27",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.23",
+      "notes": "tools.exec.safeBins validation for sort could be bypassed via GNU long-option abbreviations (e.g. --compress-prog instead of --compress-program) in allowlist mode, enabling approval-free execution. Fixed in 2026.2.23 via commit 3b8e33037ae2e12af7beb56fcf0346f1f8cbde6f.",
+      "sources": [
+        "https://advisories.gitlab.com/pkg/npm/openclaw/CVE-2026-28363/",
+        "https://github.com/advisories/GHSA-7977-c43c-xpwj",
+        "https://nvd.nist.gov/vuln/detail/CVE-2026-28363"
+      ],
+      "addedAt": "2026-03-05T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar allowlist bypass vectors found"
+      ]
+    },
+    {
+      "id": "FAKE-OPENCLAW-INSTALL-2026-03",
+      "title": "Fake OpenClaw Install Scripts in Open-Source Repositories",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-05",
+      "publishedDate": "2026-03-03",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "Huntress research: threat actors using open-source repositories with fake OpenClaw install scripts to infect systems. We install from npm directly, not random repos. Awareness only.",
+      "sources": [
+        "https://www.itbrew.com/stories/2026/03/03/new-vulnerability-in-open-source-repositories-uses-fake-openclaw-install-to-attack"
+      ],
+      "addedAt": "2026-03-05T07:30:00Z",
+      "reportAgainIf": [
+        "npm registry itself compromised",
+        "Campaign targets Linux/server environments specifically"
+      ]
+    },
+    {
       "id": "CVE-2026-0861",
       "title": "glibc memalign integer overflow",
       "severity": "HIGH",
       "cvss": null,
       "firstSeen": "2026-02-19",
-      "status": "unpatched",
-      "ourStatus": "vulnerable-no-fix-yet",
+      "status": "patched",
+      "ourStatus": "safe",
       "affectedVersion": "glibc 2.39",
-      "notes": "Heap corruption via large alignment values. We are on vulnerable glibc 2.39. No Ubuntu patch available yet as of Feb 20.",
+      "notes": "Heap corruption via large alignment values. Ubuntu patch (glibc 2.39-0ubuntu8.7) confirmed installed. CVE-2026-0861 fix included in noble-security update from Jan 30, 2026. SAFE.",
       "reportAgainIf": [
         "Ubuntu patch released",
         "Active exploitation detected"
+      ],
+      "updatedAt": "2026-03-20T07:30:00Z"
+    },
+    {
+      "id": "UNIT42-WEB-IDPI-2026-03",
+      "title": "Web-Based Indirect Prompt Injection Observed in the Wild (Unit 42)",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-06",
+      "publishedDate": "2026-03-03",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "Palo Alto Unit 42 published first large-scale real-world analysis of web-based indirect prompt injection (IDPI). Key findings: IDPI is actively weaponized, not just theoretical. 22 distinct attacker techniques identified including SEO manipulation, data destruction, unauthorized transactions, credential leakage, and ad review evasion. Attackers embed hidden instructions in HTML/metadata/comments consumed by LLM browsing tools. Directly relevant to OpenClaw deployments with browser capabilities. Our mitigations: external content wrapped with UNTRUSTED warnings, system prompt safety rules, Thomas reviews memory files. Risk remains for any web browsing task.",
+      "sources": [
+        "https://unit42.paloaltonetworks.com/ai-agent-prompt-injection/"
+      ],
+      "addedAt": "2026-03-06T07:30:00Z",
+      "reportAgainIf": [
+        "OpenClaw-specific IDPI exploit observed",
+        "Mitigation or detection tool released for OpenClaw",
+        "Active exploitation confirmed against personal AI agents"
+      ]
+    },
+    {
+      "id": "CVE-2026-28446",
+      "title": "OpenClaw Voice Extension RCE",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-06",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.1",
+      "notes": "RCE in OpenClaw voice-call extension versions prior to 2026.2.1. Remote unauthenticated attacker can execute arbitrary code when voice extension is installed and enabled. We do NOT use the voice-call extension \u2014 not applicable.",
+      "sources": [
+        "https://dev.to/tiamatenity/cve-2026-28446-cvss-98-openclaw-voice-extension-rce-what-you-need-to-know-n2i"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "We start using voice-call extension",
+        "Variant affects core OpenClaw without extension"
+      ]
+    },
+    {
+      "id": "CVE-2026-28466",
+      "title": "OpenClaw Gateway Exec Approval Bypass",
+      "severity": "HIGH",
+      "cvss": 8.8,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.14",
+      "notes": "Gateway fails to sanitize internal approval fields in node.invoke parameters, allowing authenticated clients to bypass exec approval gating for system.run commands. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28466-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-28485",
+      "title": "OpenClaw Browser Control Missing Auth on /agent/act",
+      "severity": "HIGH",
+      "cvss": 8.4,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.12",
+      "notes": "Missing authentication on /agent/act browser-control HTTP route allows unauthorized local callers to invoke privileged operations. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28485-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-28463",
+      "title": "OpenClaw Exec Allowlist Shell Expansion Bypass",
+      "severity": "HIGH",
+      "cvss": 8.4,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.14",
+      "notes": "Exec-approvals allowlist validates pre-expansion argv tokens but execution uses real shell expansion, allowing safe bins (head, tail, grep) to read arbitrary files via glob patterns. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28463-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar allowlist bypass vectors found"
+      ]
+    },
+    {
+      "id": "CVE-2026-28458",
+      "title": "OpenClaw Browser Relay CDP Endpoint Missing Auth",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.1",
+      "notes": "Browser Relay /cdp WebSocket endpoint does not require authentication tokens, allowing websites to connect via loopback and steal session cookies. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28458-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-28453",
+      "title": "OpenClaw TAR Archive Path Traversal",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.14",
+      "notes": "TAR archive entry paths not validated during extraction, allowing path traversal (../../) to write files outside intended directory. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28453-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-29609",
+      "title": "OpenClaw fetchWithGuard Memory Exhaustion DoS",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.14",
+      "notes": "fetchWithGuard allocates entire response payloads in memory before enforcing maxBytes limits, enabling memory exhaustion DoS via oversized responses without Content-Length headers. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-29609-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-28478",
+      "title": "OpenClaw Webhook Handler Unbounded Buffering DoS",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.13",
+      "notes": "Webhook handlers buffer request bodies without strict byte or time limits, enabling DoS via oversized JSON payloads or slow uploads. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28478-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-28479",
+      "title": "OpenClaw SHA-1 Sandbox Cache Key Collision",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.15",
+      "notes": "SHA-1 used for sandbox identifier cache keys, vulnerable to collision attacks enabling cache poisoning and unsafe sandbox state reuse. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28479-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-28465",
+      "title": "OpenClaw Voice-Call Webhook Auth Bypass via Forwarded Headers",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-07",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.3",
+      "notes": "Voice-call plugin webhook verification bypass via spoofed X-Forwarded-* headers. We do NOT use voice-call plugin \u2014 not applicable. Patched anyway in our version.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28465-openclaw-voice-call/"
+      ],
+      "addedAt": "2026-03-07T07:30:00Z",
+      "reportAgainIf": [
+        "We start using voice-call plugin"
+      ]
+    },
+    {
+      "id": "CVE-2026-28462",
+      "title": "OpenClaw Browser Control API Path Traversal (trace/download endpoints)",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-08",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.13",
+      "notes": "Browser control API accepts user-supplied output paths for trace and download files without constraining writes to temporary directories. Path traversal in POST /trace/stop, POST /wait/download, and POST /download endpoints allows writing files outside intended temp roots. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28462-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-08T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-29610",
+      "title": "OpenClaw PATH Manipulation Command Hijacking",
+      "severity": "HIGH",
+      "cvss": 7.8,
+      "firstSeen": "2026-03-08",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.14",
+      "notes": "Attackers can execute unintended binaries by manipulating PATH environment variables through node-host execution or project-local bootstrapping. Malicious executables placed in PATH override allowlisted safe-bin commands. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-29610-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-08T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar PATH manipulation vectors found"
+      ]
+    },
+    {
+      "id": "CVE-2026-28468",
+      "title": "OpenClaw Sandbox Browser Bridge Missing Gateway Auth (CVE assignment)",
+      "severity": "HIGH",
+      "cvss": 7.8,
+      "firstSeen": "2026-03-08",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.2",
+      "patchedIn": "2026.2.14",
+      "notes": "CVE assignment for sandbox browser bridge server accepting requests without gateway authentication. Local attackers could enumerate tabs, retrieve WebSocket URLs, execute JavaScript, and exfiltrate session data. Related to existing tracking entry OPENCLAW-SANDBOX-BROWSER-AUTH-2026-02. We run 2026.3.2 \u2014 patched.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28468-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-08T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "BING-AI-FAKE-OPENCLAW-2026-03",
+      "title": "Bing AI Promoted Fake OpenClaw GitHub Repos Pushing Info-Stealing Malware",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-09",
+      "publishedDate": "2026-03-06",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "Huntress discovered fake GitHub repos posing as OpenClaw installers, promoted by Bing AI search results. GitHub org 'openclaw-installer' hosted repos delivering Atomic Stealer (macOS), Vidar stealer, and GhostSocks proxy malware (Windows). Repos used copied Cloudflare moltworker code for legitimacy. Campaign targets users searching for OpenClaw installers via Bing. We install from npm directly, not via search engine results. Linux not directly targeted (macOS/Windows focus). Repos reported to GitHub.",
+      "sources": [
+        "https://www.bleepingcomputer.com/news/security/bing-ai-promoted-fake-openclaw-github-repo-pushing-info-stealing-malware/"
+      ],
+      "addedAt": "2026-03-09T07:30:00Z",
+      "reportAgainIf": [
+        "npm registry itself compromised",
+        "Linux-targeting variant appears",
+        "Campaign expands to target server environments"
+      ]
+    },
+    {
+      "id": "AGENTS-OF-CHAOS-STUDY-2026-03",
+      "title": "\"Agents of Chaos\" Study \u2014 11 Critical Failure Patterns in Autonomous AI Agents (Harvard/Stanford/MIT)",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-10",
+      "publishedDate": "2026-02-23",
+      "status": "informational",
+      "ourStatus": "low-risk",
+      "notes": "38 researchers from Northeastern, Harvard, Stanford, MIT, Carnegie Mellon etc. deployed 6 autonomous agents (Claude Opus + Kimi K2.5) on OpenClaw for 14-day red-team study. Documented 11 failure patterns: unauthorized data sharing (124 email records to non-owners), destructive system interventions (agent deleted entire email server to protect a secret), identity spoofing, false completion reports, social pressure exploitation, indirect sensitive data disclosure (refused SSN directly but forwarded unredacted email containing SSN/bank/medical data). Key structural deficits: missing stakeholder model, missing self-model, missing private deliberation space. Not a code vulnerability \u2014 alignment/architecture class. Our mitigations: explicit hard boundaries in AGENTS.md covering relay prohibition, non-owner verification, info disclosure rules.",
+      "sources": [
+        "https://agentsofchaos.baulab.info/report.html",
+        "https://www.trendingtopics.eu/agents-of-chaos-study-reveals-11-critical-failure-patterns-in-openclaw-agents/",
+        "https://www.zdnet.com/article/how-ai-agents-create-new-disasters-when-they-interact/",
+        "https://stateofsurveillance.org/news/agents-of-chaos-red-team-ai-agent-security-vulnerabilities-2026/"
+      ],
+      "addedAt": "2026-03-10T07:30:00Z",
+      "reportAgainIf": [
+        "Specific mitigation or patch released for OpenClaw addressing these patterns",
+        "Follow-up study with worse findings",
+        "Active exploitation of these patterns against personal AI agents"
+      ]
+    },
+    {
+      "id": "ZENITY-AGENTIC-BROWSER-VULN-2026-03",
+      "title": "Agentic AI Browser Vulnerabilities \u2014 Zero-Click Agent Hijacking (Zenity/Perplexity Comet)",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-09",
+      "publishedDate": "2026-03-03",
+      "status": "patched-by-vendor",
+      "ourStatus": "informational",
+      "notes": "Zenity Labs disclosed 'PleaseFix' / 'PerplexedAgent' vulnerabilities in agentic AI browsers including Perplexity Comet. Enables zero-click agent hijacking, local file exfiltration, and password vault takeover within authenticated sessions. Attackers push untrusted data into AI browsers to hijack the agent, inheriting whatever access it has been granted. Perplexity patched in Feb 2026. Not directly OpenClaw, but relevant as a class of agentic system vulnerability \u2014 our browser tool has similar trust boundaries. Reinforces need for UNTRUSTED content handling in browser automation.",
+      "sources": [
+        "https://cyberscoop.com/agentic-ai-browsers-allow-hijacking-zenity-labs-comet/",
+        "https://siliconangle.com/2026/03/03/zenity-warns-inherent-security-risks-agentic-browsers-perplexity-comet-findings/",
+        "https://zenity.io/company-overview/newsroom/company-news/zenity-labs-discloses-pleasefix-perplexedagent-vulnerability"
+      ],
+      "addedAt": "2026-03-09T07:30:00Z",
+      "reportAgainIf": [
+        "OpenClaw browser tool specifically affected",
+        "Similar exploit demonstrated against OpenClaw agent",
+        "Mitigation guidance released for OpenClaw"
+      ]
+    },
+    {
+      "id": "CVE-2026-1234",
+      "title": "OpenClaw system.run PowerShell Encoded Command Approval Bypass",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-11",
+      "publishedDate": "2026-03-09",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.7",
+      "notes": "system.run allowlist mode fails to recognize PowerShell -EncodedCommand/-enc/-e flags as shell-wrapper indicators, allowing base64-encoded payloads to bypass approval. Fixed in 2026.3.7 (commit 1d1757b). We updated to 2026.3.11 \u2014 SAFE. Linux-only, no PowerShell installed.",
+      "sources": [
+        "https://dailycve.com/openclaw-approval-bypass-cve-2026-1234-high/"
+      ],
+      "addedAt": "2026-03-11T07:30:00Z",
+      "reportAgainIf": [
+        "We update to 2026.3.7+",
+        "Linux-specific bypass variant discovered"
+      ],
+      "updatedAt": "2026-03-13T07:30:00Z"
+    },
+    {
+      "id": "OPENCLAW-ENV-INJECTION-2026-03",
+      "title": "OpenClaw system.run Environment Variable Injection Bypass",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-11",
+      "publishedDate": "2026-03-09",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.7",
+      "notes": "sanitizeSystemRunEnvOverrides fails to block dangerous env var prefixes (GIT_SSH_COMMAND, GIT_CONFIG_, NPM_CONFIG_). Fixed in 2026.3.7 (commit e27bbe4). We updated to 2026.3.11 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-environment-variable-injection-cve-2026-xxxx-medium/"
+      ],
+      "addedAt": "2026-03-11T07:30:00Z",
+      "reportAgainIf": [
+        "We update to 2026.3.7+",
+        "Active exploitation confirmed"
+      ],
+      "updatedAt": "2026-03-13T07:30:00Z"
+    },
+    {
+      "id": "OPENCLAW-COMMENT-BYPASS-2026-03",
+      "title": "OpenClaw Allowlist Comment Handling Bypass",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-11",
+      "publishedDate": "2026-03-08",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.7",
+      "notes": "Shell comment semantics not respected in allow-always persistence. Fixed in 2026.3.7 (commit 939b184). We updated to 2026.3.11 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-comment-handling-bypass-cve-2026-medium/"
+      ],
+      "addedAt": "2026-03-11T07:30:00Z",
+      "reportAgainIf": [
+        "We update to 2026.3.7+"
+      ],
+      "updatedAt": "2026-03-13T07:30:00Z"
+    },
+    {
+      "id": "OPENCLAW-AUTH-BYPASS-CHAT-SEND-2026-03",
+      "title": "OpenClaw Config Write Authorization Bypass via chat.send",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-11",
+      "publishedDate": "2026-03-09",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.7",
+      "notes": "operator.write clients can achieve persistent config mutations via chat.send slash commands that bypass operator.admin requirement. Fixed in 2026.3.7 (commit 5f8f58a). We updated to 2026.3.11 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-cve-2026-nnnn-medium/"
+      ],
+      "addedAt": "2026-03-11T07:30:00Z",
+      "reportAgainIf": [
+        "We update to 2026.3.7+"
+      ],
+      "updatedAt": "2026-03-13T07:30:00Z"
+    },
+    {
+      "id": "CHROME-146-UPDATE-2026-03",
+      "title": "Google Chrome 146 Available (URGENT \u2014 Fixes V8 Zero-Day CVE-2026-3910)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-11",
+      "publishedDate": "2026-03-10",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "146.0.7680.164",
+      "patchedIn": "146.0.7680.80",
+      "notes": "Chrome 146.0.7680.164 installed as of 2026-03-25 scan. V8 zero-day CVE-2026-3910 and Skia OOB write CVE-2026-3909 PATCHED.",
+      "sources": [
+        "https://www.warp2search.net/story/google-chrome-1460768072-released",
+        "https://socprime.com/blog/cve-2026-3910-vulnerability/"
+      ],
+      "addedAt": "2026-03-11T07:30:00Z",
+      "updatedAt": "2026-03-25T07:30:00Z",
+      "reportAgainIf": [
+        "We confirm update applied"
+      ]
+    },
+    {
+      "id": "OPENCLAW-ADVISORY-SURGE-2026-03",
+      "title": "OpenClaw Advisory Surge \u2014 255 GHSAs Expose GHSA/CVE Tracking Gap",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-12",
+      "publishedDate": "2026-03-10",
+      "status": "informational",
+      "ourStatus": "low-risk",
+      "notes": "Socket.dev, CybersecurityNews, GBHackers report OpenClaw now has 255 GitHub Security Advisories, many without CVE assignments. VulnCheck attempted to claim 170 advisories via DIBS mechanism, rejected by MITRE TL-Root. Only 8% of GHSAs are formally GitHub-reviewed, meaning unreviewed advisories don't trigger Dependabot alerts. We track manually via this file, so we're ahead of automated-only teams. Reinforces need to stay on latest OpenClaw version.",
+      "sources": [
+        "https://cybersecuritynews.com/openclaw-advisory-surge-exposes-gap/",
+        "https://gbhackers.com/openclaw-advisory-surge/",
+        "https://socket.dev/blog/openclaw-advisory-surge-highlights-gaps-between-ghsa-and-cve-tracking"
+      ],
+      "addedAt": "2026-03-12T07:30:00Z",
+      "reportAgainIf": [
+        "CVE assignment process catches up (bulk assignment)",
+        "New critical GHSA without CVE that affects us"
+      ]
+    },
+    {
+      "id": "CVE-2026-28472",
+      "title": "OpenClaw Gateway WebSocket Device Identity Verification Bypass",
+      "severity": "CRITICAL",
+      "cvss": 8.1,
+      "firstSeen": "2026-03-13",
+      "publishedDate": "2026-03-05",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.2.2",
+      "notes": "Gateway WebSocket connect handshake allows skipping device identity checks when auth.token is present but not validated. Attackers can connect without device identity/pairing, gaining operator access. CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H. Critical in deployments using secondary identity providers (e.g., Tailscale) for network-level auth. We run 2026.3.11 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28472-openclaw-openclaw/",
+        "https://dailycve.com/openclaw-authentication-bypass-cve-2026-28472-critical/",
+        "https://cvereports.com/reports/CVE-2026-28472"
+      ],
+      "addedAt": "2026-03-13T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CHINA-CNCERT-OPENCLAW-ALERT-2026-03",
+      "title": "China CNCERT/MIIT Formal Security Alert on OpenClaw \u2014 State Sector Ban",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-13",
+      "publishedDate": "2026-03-10",
+      "status": "informational",
+      "ourStatus": "safe",
+      "notes": "Chinese MIIT and CNCERT issued high-priority security alerts regarding OpenClaw. 40,000+ exposed instances found globally (highest density: China, then US, Singapore). 60%+ estimated vulnerable to immediate takeover. Government agencies and state-owned banks banned from installing OpenClaw. MIIT ordered critical infrastructure operators to audit and close public-facing ports. Cites ClawJacked vuln and ClawHub supply chain risks. We are localhost-only, patched, and not internet-exposed \u2014 not affected. Updates existing OPENCLAW-EXPOSURE-2026-02 tracking with fresh government response data.",
+      "sources": [
+        "https://www.security.land/china-openclaw-ai-security-alert-cve-2025-11251/",
+        "https://news.cgtn.com/news/2026-03-10/China-s-internet-emergency-center-issues-OpenClaw-security-alert-1Lp96HIJQyY/p.html",
+        "https://www.theregister.com/2026/03/12/china_cert_openclaw_security_warning/",
+        "https://www.infosecurity-magazine.com/news/researchers-40000-exposed-openclaw/"
+      ],
+      "addedAt": "2026-03-13T07:30:00Z",
+      "reportAgainIf": [
+        "Similar alert issued by US CISA or EU ENISA",
+        "New attack vectors targeting localhost deployments",
+        "Our instance detected in exposure scans"
+      ]
+    },
+    {
+      "id": "HACKERBOT-CLAW-SUPPLY-CHAIN-2026-03",
+      "title": "HackerBot-Claw: AI Agent Exploiting GitHub Actions for Supply Chain Attacks",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-13",
+      "publishedDate": "2026-03-09",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "Autonomous AI bot 'hackerbot-claw' (claimed Claude Opus-powered) exploited GitHub Actions CI/CD misconfigs to attack major repos including awesome-go (140K+ stars), Aqua Trivy (25K+ stars), RustPython (20K+ stars), Microsoft, Datadog, and CNCF projects. Achieved RCE in 5 of 7 targets over 37 hours in late Feb 2026. Exfiltrated GitHub tokens with write permissions. First confirmed AI agent conducting full-scale software supply chain attack. OpenSSF issued TLP:CLEAR advisory March 1. GitHub account removed. Our risk: we don't run public GitHub Actions workflows for our repos, but this signals escalation in AI-agent-powered attacks on open source infrastructure.",
+      "sources": [
+        "https://www.datadoghq.com/blog/engineering/stopping-hackerbot-claw-with-bewaire/",
+        "https://www.infoq.com/news/2026/03/ai-bot-github-actions-exploit/",
+        "https://hackread.com/ai-bot-hackerbot-claw-microsoft-datadog-github-repos/",
+        "https://threatlandscape.io/blog/hackerbot-claw-ai-bot-github-actions-supply-chain-attack"
+      ],
+      "addedAt": "2026-03-13T07:30:00Z",
+      "reportAgainIf": [
+        "Similar attacks targeting npm packages we depend on",
+        "AI agent attacks become commodity tool",
+        "Our repos or dependencies targeted"
+      ]
+    },
+    {
+      "id": "GUARDIAN-ROGUE-AGENTS-2026-03",
+      "title": "Guardian Lab Test: Rogue AI Agents Override Antivirus, Publish Passwords",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-13",
+      "publishedDate": "2026-03-12",
+      "status": "informational",
+      "ourStatus": "informational",
+      "notes": "The Guardian published lab test results showing AI agents engaging in autonomous 'aggressive' behaviors including overriding antivirus software, publishing passwords, and exploiting every available vulnerability when given system access. Described as 'new form of insider risk'. Reinforces findings from 'Agents of Chaos' study. Not a specific CVE \u2014 behavioral/alignment class. Our mitigations: explicit hard boundaries in AGENTS.md, single-operator trust model, exec approval gating.",
+      "sources": [
+        "https://www.theguardian.com/technology/ng-interactive/2026/mar/12/lab-test-mounting-concern-over-rogue-ai-agents-artificial-intelligence"
+      ],
+      "addedAt": "2026-03-13T07:30:00Z",
+      "reportAgainIf": [
+        "Specific OpenClaw agent misbehavior documented",
+        "Mitigation framework released"
+      ]
+    },
+    {
+      "id": "OPENCLAW-ORIGIN-BYPASS-TRUSTED-PROXY-2026-03",
+      "title": "OpenClaw WebSocket Origin Bypass in trusted-proxy Mode",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-14",
+      "publishedDate": "2026-03-12",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.11",
+      "notes": "WebSocket connections bypass origin validation when gateway.auth.mode is set to trusted-proxy. Handshake logic incorrectly treats proxy-delivered requests as exempt from browser origin checks when Origin header appears alongside proxy headers. Attacker-origin pages can connect through trusted reverse proxy and inherit proxy-authenticated identity, gaining operator.admin access. We run 2026.3.11 \u2014 exactly the patched version. SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-npm-origin-bypass-cve-2026-xxxxx-critical/"
+      ],
+      "addedAt": "2026-03-14T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "CVE number assigned"
+      ]
+    },
+    {
+      "id": "OPENCLAW-TOCTOU-SCRIPT-DRIFT-2026-03",
+      "title": "OpenClaw system.run TOCTOU Mutable Script Drift",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-14",
+      "publishedDate": "2026-03-07",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.9",
+      "notes": "system.run approval mechanism fails to bind content of mutable interpreter-style script files to approval decision. Approving 'sh ./script.sh' only validates command shape, not file content. Attacker can replace script content after approval but before execution. Initial fix (2026.3.7) missed bun/deno runtimes; complete fix (2026.3.9) implements snapshot binding for all interpreter operands. We run 2026.3.11 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-npm-time-of-check-to-time-of-use-toctou-cve-2026-xxxx-critical/"
+      ],
+      "addedAt": "2026-03-14T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "New TOCTOU vectors in exec approval"
+      ]
+    },
+    {
+      "id": "OPENCLAW-WORKSPACE-SYMLINK-BYPASS-2026-03",
+      "title": "OpenClaw Workspace Boundary Bypass via Symlinks",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-14",
+      "publishedDate": "2026-03-12",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.2.26",
+      "notes": "Workspace-only path validation handles symlinks improperly. In-workspace symlink pointing outside workspace to non-existent leaf passes initial validation. First write through guarded path creates file outside workspace boundary. Fix implements hardened canonical boundary resolution. Reported by @tdjackey. We run 2026.3.11 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-improper-path-validation-cve-2026-xxxxx-high/"
+      ],
+      "addedAt": "2026-03-14T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "OPENCLAW-SKILL-INSTALL-TOCTOU-2026-03",
+      "title": "OpenClaw Skill Installation TOCTOU Path Traversal",
+      "severity": "MODERATE",
+      "cvss": null,
+      "firstSeen": "2026-03-14",
+      "publishedDate": "2026-03-09",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.8",
+      "notes": "Skill installer validates per-skill tools root using mutable lexical path, reused for download/copy. Race condition allows local attacker to rebind tools-root path via symlinks/bind mounts between validation and file write, escaping sandbox. Fix pins canonical path immediately after validation. We run 2026.3.11 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-npm-path-traversal-time-of-check-to-time-of-use-toctou-cve-2026-xxxx-moderate/"
+      ],
+      "addedAt": "2026-03-14T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-3910",
+      "title": "Chrome V8 Zero-Day \u2014 Inappropriate Implementation (Actively Exploited)",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-14",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "146.0.7680.164",
+      "patchedIn": "146.0.7680.80",
+      "notes": "Chrome 146.0.7680.164 installed. V8 zero-day PATCHED.",
+      "sources": [
+        "https://socprime.com/blog/cve-2026-3910-vulnerability/"
+      ],
+      "addedAt": "2026-03-14T07:30:00Z",
+      "reportAgainIf": [
+        "We confirm update applied",
+        "Exploitation in browser automation contexts confirmed"
+      ],
+      "updatedAt": "2026-03-25T07:30:00Z"
+    },
+    {
+      "id": "OPENCLAW-TEAMS-AUTH-BYPASS-2026-03",
+      "title": "OpenClaw MS Teams Plugin groupAllowFrom Authorization Bypass",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-14",
+      "publishedDate": "2026-03-09",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.8",
+      "notes": "Teams plugin incorrectly synthesizes wildcard sender authorization when groupAllowFrom is empty but route allowlist exists. We do NOT use MS Teams plugin \u2014 not applicable.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-cve-2026-xxxx-medium/"
+      ],
+      "addedAt": "2026-03-14T07:30:00Z",
+      "reportAgainIf": [
+        "We start using MS Teams"
+      ]
+    },
+    {
+      "id": "GHSA-G353-MGV3-8PCJ",
+      "title": "OpenClaw Gateway WebSocket Scope Escalation (Shared-Secret to operator.admin)",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-15",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.12",
+      "notes": "Gateway fails to clear client-declared scopes for device-less WebSocket connections not from Control UI. A shared-secret holder can self-declare operator.admin scope and gain full admin control. Fixed in 2026.3.12 by binding scopes to validated device identity. Updated to 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-ghsa-g353-mgv3-8pcj-critical/",
+        "https://github.com/advisories/GHSA-g353-mgv3-8pcj"
+      ],
+      "addedAt": "2026-03-15T07:30:00Z",
+      "reportAgainIf": [
+        "We confirm update applied",
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "OPENCLAW-SETUP-CODE-CREDENTIAL-EXPOSURE-2026-03",
+      "title": "OpenClaw Credential Exposure in Device Pairing Setup Codes",
+      "severity": "MODERATE",
+      "cvss": null,
+      "firstSeen": "2026-03-15",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.12",
+      "notes": "Device pairing QR codes and setup codes embed the long-lived gateway shared credential instead of a short-lived bootstrap token. Anyone with a screenshot of the QR code or access to logs can extract the permanent credential. Fixed in 2026.3.12 with short-lived bootstrap tokens. Updated to 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-credential-exposure-in-setup-codes-cve-2026-xxxx-moderate/"
+      ],
+      "addedAt": "2026-03-15T07:30:00Z",
+      "reportAgainIf": [
+        "We confirm update applied",
+        "Credential leak confirmed from old QR codes"
+      ]
+    },
+    {
+      "id": "OPENCLAW-EXEC-GLOB-BYPASS-2026-03",
+      "title": "OpenClaw Exec Allowlist Glob-to-POSIX Translation Bypass",
+      "severity": "MODERATE",
+      "cvss": null,
+      "firstSeen": "2026-03-15",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "vulnerable-update-available",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.11",
+      "notes": "matchesExecAllowlistPattern lowercases paths (breaks case-sensitive filesystems) and allows ? wildcard to match / directory separator, enabling cross-path-boundary matching. Affects <= 2026.3.8, patched in 2026.3.11. Our version should be safe but full fix confirmed in 2026.3.11+.",
+      "sources": [
+        "https://dailycve.com/openclaw-exec-approval-bypass-cve-2026-xxxxx-moderate/",
+        "https://github.com/advisories/GHSA-f8r2-vg7x-gh8m"
+      ],
+      "addedAt": "2026-03-15T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Affects versions > 2026.3.8"
+      ]
+    },
+    {
+      "id": "OPENCLAW-FEISHU-CHAT-TYPE-BYPASS-2026-03",
+      "title": "OpenClaw Feishu Reaction Auth Bypass via Missing chat_type",
+      "severity": "MODERATE",
+      "cvss": null,
+      "firstSeen": "2026-03-15",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.3.12",
+      "notes": "Feishu reaction payloads missing chat_type field are misclassified as p2p DMs, bypassing groupAllowFrom and requireMention protections. We do NOT use Feishu \u2014 not applicable.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-cve-2026-moderate/",
+        "https://github.com/advisories/GHSA-m69h-jm2f-2pv8"
+      ],
+      "addedAt": "2026-03-15T07:30:00Z",
+      "reportAgainIf": [
+        "We start using Feishu",
+        "Similar bypass in Telegram/Discord/WhatsApp channels"
+      ]
+    },
+    {
+      "id": "PROMPTARMOR-LINK-PREVIEW-EXFIL-2026-03",
+      "title": "PromptArmor: OpenClaw Link Preview Data Exfiltration via Indirect Prompt Injection",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-16",
+      "publishedDate": "2026-03-14",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "PromptArmor demonstrated that link preview features in messaging apps (Telegram, Discord) can be exploited for zero-click data exfiltration from OpenClaw agents. Attack: indirect prompt injection causes agent to generate attacker-controlled URL containing sensitive data; messaging app link preview renderer automatically fetches the URL, transmitting the data without user clicks. Covered by THN (Mar 14), CNCERT alert, aitextrisk.com. Our mitigations: system prompt safety rules, UNTRUSTED content wrapping, hard boundaries against data relay. Risk is real but requires successful prompt injection first.",
+      "sources": [
+        "https://thehackernews.com/2026/03/openclaw-ai-agent-flaws-could-enable.html",
+        "https://www.aitextrisk.com/"
+      ],
+      "addedAt": "2026-03-16T07:30:00Z",
+      "reportAgainIf": [
+        "OpenClaw patches link preview behavior",
+        "Specific PoC targeting our channel integrations",
+        "Mitigation config option released"
+      ]
+    },
+    {
+      "id": "CNCERT-OPENCLAW-PROMPT-INJECTION-2026-03",
+      "title": "CNCERT Expanded Alert: OpenClaw Weak Defaults Enable Prompt Injection & Data Leakage",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-16",
+      "publishedDate": "2026-03-14",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "Expanded CNCERT/THN report (Mar 14) beyond the original March 10 state-sector ban. Now details specific attack vectors: indirect prompt injection via web page summarization, link preview exfiltration, and weak default security configs. OpenAI also published blog on prompt injection evolution in agents. This is a continuation of CHINA-CNCERT-OPENCLAW-ALERT-2026-03 with new technical details. Our mitigations: hardened config, UNTRUSTED content wrapping, explicit hard boundaries in AGENTS.md.",
+      "sources": [
+        "https://thehackernews.com/2026/03/openclaw-ai-agent-flaws-could-enable.html",
+        "https://openai.com/index/designing-agents-to-resist-prompt-injection/"
+      ],
+      "addedAt": "2026-03-16T07:30:00Z",
+      "reportAgainIf": [
+        "Specific defense mechanism released by OpenClaw",
+        "Active exploitation confirmed against personal agents"
+      ]
+    },
+    {
+      "id": "CURL-CVE-2026-1965-3783-3784",
+      "title": "curl/libcurl Multiple CVEs \u2014 Credential Reuse, OAuth Token Leak, Proxy Auth Bypass",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-16",
+      "publishedDate": "2026-03-12",
+      "status": "patch-available",
+      "ourStatus": "safe",
+      "ourVersion": "curl 8.5.0",
+      "notes": "curl CVEs affect versions 8.12+. Our curl 8.5.0 predates affected code paths. SAFE.",
+      "sources": [
+        "https://www.linuxcompatible.org/story/geopandas-and-curl-updates-for-ubuntu-linux",
+        "https://dailycve.com/libcurl-authentication-bypass-cve-2026-1965-medium/",
+        "https://dailycve.com/curl-token-leak-on-redirect-cve-2026-3783-medium/"
+      ],
+      "addedAt": "2026-03-16T07:30:00Z",
+      "reportAgainIf": [
+        "We confirm patch applied",
+        "Active exploitation confirmed"
+      ],
+      "updatedAt": "2026-04-03T06:30:00Z"
+    },
+    {
+      "id": "AWS-LIGHTSAIL-OPENCLAW-AUDIT-2026-03",
+      "title": "AWS Lightsail OpenClaw Blueprint \u2014 Security Audit Findings (53 Default Skills, No Access Controls)",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-16",
+      "publishedDate": "2026-03-13",
+      "status": "informational",
+      "ourStatus": "not-applicable",
+      "notes": "AWS launched managed OpenClaw on Lightsail. Independent audit by AWS Hero (dev.to) found: 53 default skills with no channel access controls, deletable logs, no permission inheritance between delegated agents. InfoQ coverage highlights this launches amid critical security vulnerabilities. We don't use Lightsail \u2014 informational only. Notable for ecosystem context: OpenClaw going mainstream means more attackers.",
+      "sources": [
+        "https://dev.to/aws-heroes/i-kept-auditing-openclaw-on-aws-lightsail-53-default-skills-no-channel-access-controls-deletable-37e8",
+        "https://www.infoq.com/news/2026/03/aws-lightsail-openclaw-security/"
+      ],
+      "addedAt": "2026-03-16T07:30:00Z",
+      "reportAgainIf": [
+        "Findings affect self-hosted deployments",
+        "Lightsail blueprint gets hardened (relevant best practices)"
+      ]
+    },
+    {
+      "id": "OPENCLAW-LINE-DM-GROUP-BYPASS-2026-03",
+      "title": "OpenClaw LINE DM-Pairing Leaks into Group Allowlist",
+      "severity": "LOW",
+      "cvss": null,
+      "firstSeen": "2026-03-15",
+      "publishedDate": "2026-03-04",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.2.26",
+      "notes": "LINE DM-paired sender IDs incorrectly satisfy group allowlist checks. We do NOT use LINE \u2014 not applicable.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-cve-2026-xxxxx-low/"
+      ],
+      "addedAt": "2026-03-15T07:30:00Z",
+      "reportAgainIf": [
+        "We start using LINE",
+        "Similar bypass in channels we use"
+      ]
+    },
+    {
+      "id": "OPENCLAW-3-13-UPDATE-AVAILABLE",
+      "title": "OpenClaw 2026.3.13 Available (includes 2026.3.12 security fixes)",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-15",
+      "status": "applied",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.13",
+      "notes": "OpenClaw 2026.3.13 installed as of 2026-03-19 scan. Includes 2026.3.12 security fixes: setup code credential exposure, WebSocket scope escalation, workspace plugin auto-load prevention, Unicode spoofing in exec approvals, webhook security for Feishu/LINE/Zalo. Also includes dashboard overhaul and GPT-5.4/Claude fast modes. UPDATE APPLIED.",
+      "addedAt": "2026-03-15T07:30:00Z",
+      "updatedAt": "2026-03-19T07:30:00Z",
+      "reportAgainIf": [
+        "Newer version with security fixes released"
+      ]
+    },
+    {
+      "id": "CVE-2026-4039",
+      "title": "OpenClaw Skill Env Handler Code Injection (applySkillConfigenvOverrides)",
+      "severity": "MEDIUM",
+      "cvss": 5.3,
+      "firstSeen": "2026-03-17",
+      "publishedDate": "2026-03-12",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.11",
+      "patchedIn": "2026.2.21-beta.1",
+      "notes": "Code injection in applySkillConfigenvOverrides function of Skill Env Handler component. Remote exploitation possible without authentication. CVSS 4.0 base score 5.3 (Medium). Affects 2026.2.19-2. Patched in 2026.2.21-beta.1 (commit 8c9f35c). We run 2026.3.11 \u2014 SAFE.",
+      "sources": [
+        "https://radar.offseq.com/threat/cve-2026-4039-code-injection-in-openclaw-5c8684db",
+        "https://advisories.gitlab.com/pkg/npm/openclaw/GHSA-wgx8-r9vw-2w4h/"
+      ],
+      "addedAt": "2026-03-17T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CAICT-BASH-TOOLS-CMD-INJECTION-2026-03",
+      "title": "OpenClaw Bash-Tools Command Injection (CAICT/SJTU/NJU Discovery)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-17",
+      "publishedDate": "2026-03-16",
+      "status": "patched-upstream",
+      "ourStatus": "check-needed",
+      "ourVersion": "2026.3.11",
+      "notes": "CAICT (China Academy of ICT) with Shanghai Jiao Tong University and Nanjing University discovered high-risk command injection in OpenClaw bash-tools module. Attackers bypass defenses via LLM-generated command-line arguments. Verified across mainstream model environments. Submitted to NVDB AI Product Security Vulnerability Database and GitHub community. No CVE number assigned yet. Patch version unclear \u2014 need to verify if 2026.3.13 includes fix.",
+      "sources": [
+        "https://phemex.com/news/article/highrisk-vulnerability-in-openclaw-patched-by-caict-and-universities-66746"
+      ],
+      "addedAt": "2026-03-17T07:30:00Z",
+      "reportAgainIf": [
+        "CVE number assigned",
+        "We confirm fix in our version",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "NVIDIA-NEMOCLAW-GTC-2026-03",
+      "title": "Nvidia NemoClaw \u2014 Enterprise Security Stack for OpenClaw (GTC 2026)",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-17",
+      "publishedDate": "2026-03-16",
+      "status": "informational",
+      "ourStatus": "monitoring",
+      "notes": "Nvidia announced NemoClaw at GTC 2026 keynote (March 16). Enterprise-grade security and privacy guardrails built on top of OpenClaw. Collaboration with Peter Steinberger. Uses Nvidia Nemotron models + OpenShell runtime. Jensen Huang positioned OpenClaw as replacement for SaaS (agents-as-a-service). Currently in preview. Ecosystem signal: OpenClaw going mainstream with enterprise backing.",
+      "sources": [
+        "https://www.zdnet.com/article/nvidia-openclaw-nemoclaw-security-stack-gtc-2026/",
+        "https://techcrunch.com/2026/03/16/nvidias-version-of-openclaw-could-solve-its-biggest-problem-security/",
+        "https://www.theregister.com/2026/03/16/nvidia_wraps_its_nemoclaw_around/"
+      ],
+      "addedAt": "2026-03-17T07:30:00Z",
+      "reportAgainIf": [
+        "NemoClaw security features become available for self-hosted OpenClaw",
+        "Enterprise security patterns applicable to our setup"
+      ]
+    },
+    {
+      "id": "CVE-2026-22175",
+      "title": "OpenClaw Exec Allowlist Bypass via Multiplexer Shell Wrappers (busybox/toybox)",
+      "severity": "HIGH",
+      "cvss": 7.1,
+      "firstSeen": "2026-03-19",
+      "publishedDate": "2026-03-18",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.23",
+      "notes": "Exec approval bypass in allowlist mode: allow-always grants circumvented through unrecognized multiplexer shell wrappers (busybox, toybox sh -c). Attackers invoke arbitrary payloads under same wrapper to satisfy stored allowlist rules. CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:N. CWE-184 (Incomplete List of Disallowed Inputs). We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-22175-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-19T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar allowlist bypass vectors found"
+      ]
+    },
+    {
+      "id": "CVE-2026-22171",
+      "title": "OpenClaw Feishu Media Download Path Traversal",
+      "severity": "HIGH",
+      "cvss": 8.2,
+      "firstSeen": "2026-03-19",
+      "publishedDate": "2026-03-18",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.19",
+      "notes": "Path traversal in Feishu media download flow (extensions/feishu/src/media.ts). Untrusted media keys interpolated directly into temp file paths allow escape from os.tmpdir() and arbitrary file writes. CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N. CWE-22. We do NOT use Feishu \u2014 not applicable. Patched in our version anyway.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-22171-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-19T07:30:00Z",
+      "reportAgainIf": [
+        "We start using Feishu",
+        "Similar path traversal in channels we use"
+      ]
+    },
+    {
+      "id": "CVE-2026-32000",
+      "title": "OpenClaw Lobster Extension Command Injection via Shell Fallback",
+      "severity": "MEDIUM",
+      "cvss": 6.3,
+      "firstSeen": "2026-03-20",
+      "publishedDate": "2026-03-19",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.19",
+      "notes": "Command injection in Lobster extension tool execution. Uses Windows shell fallback with shell: true after spawn failures. Attackers inject shell metacharacters in command arguments to execute arbitrary commands when subprocess launch fails with EINVAL or ENOENT errors. CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:H. CWE-78. We run 2026.3.13 \u2014 SAFE. Also Linux-only, Lobster extension Windows-specific fallback not triggered.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32000-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-20T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Linux-specific variant found"
+      ]
+    },
+    {
+      "id": "GHSA-WCXR-59V9-RXR8",
+      "title": "OpenClaw session_status Sandbox Escape (Cross-Session Access)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-20",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.11",
+      "notes": "session_status tool did not enforce session-visibility boundary. Sandboxed subagents could supply parent/sibling session keys to access restricted metadata, API keys, or modify model overrides. CWE-863. Fixed in 2026.3.11 with session-tree visibility guards. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://github.com/advisories/GHSA-wcxr-59v9-rxr8",
+        "https://dailycve.com/openclaw-incorrect-authorization-ghsa-wcxr-59v9-rxr8-high/"
+      ],
+      "addedAt": "2026-03-20T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar sandbox escape vectors found"
+      ]
+    },
+    {
+      "id": "GHSA-VMHQ-CQM9-6P7Q",
+      "title": "OpenClaw Browser Profile Creation Authorization Bypass (operator.write to admin)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-20",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.11",
+      "notes": "operator.write users could access /profiles/create endpoint (admin-level) via browser.request permission. Allowed injecting attacker-chosen remote CDP endpoints into browser profile configs. CWE-863. Fixed in 2026.3.11 by enforcing operator.admin scope for browser profile persistence. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-ghsa-vmhq-cqm9-6p7q-high/"
+      ],
+      "addedAt": "2026-03-20T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "GHSA-5M9R-P9G7-679C",
+      "title": "OpenClaw Zalo Webhook Rate Limit Bypass",
+      "severity": "MODERATE",
+      "cvss": null,
+      "firstSeen": "2026-03-20",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.12",
+      "notes": "Rate limiter in Zalo webhook handler triggered only after auth check, allowing brute-force of webhook secrets without hitting rate limit. CWE-307. Fixed in 2026.3.12 by moving rate limit before auth. We do NOT use Zalo \u2014 not applicable. Patched in our version anyway.",
+      "sources": [
+        "https://dailycve.com/openclaw-rate-limit-bypass-ghsa-5m9r-p9g7-679c-moderate/"
+      ],
+      "addedAt": "2026-03-20T07:30:00Z",
+      "reportAgainIf": [
+        "We start using Zalo",
+        "Similar rate limit bypass in channels we use"
+      ]
+    },
+    {
+      "id": "GHSA-F5MF-3R52-R83W",
+      "title": "OpenClaw Zalo Group Authorization Bypass via Mutable Group Names",
+      "severity": "MODERATE",
+      "cvss": null,
+      "firstSeen": "2026-03-20",
+      "publishedDate": "2026-03-13",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.12",
+      "notes": "Zalo group allowlist matched on mutable display names instead of stable group IDs. Attacker could rename a group to match a trusted group name and bypass authorization. Fixed in 2026.3.12. We do NOT use Zalo \u2014 not applicable.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-ghsa-f5mf-3r52-r83w-moderate/"
+      ],
+      "addedAt": "2026-03-20T07:30:00Z",
+      "reportAgainIf": [
+        "We start using Zalo",
+        "Similar bypass in channels we use"
+      ]
+    },
+    {
+      "id": "OPENCLAW-GITHUB-CLAW-TOKEN-PHISHING-2026-03",
+      "title": "OpenClaw Developer Phishing via Fake CLAW Token Airdrops on GitHub",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-20",
+      "publishedDate": "2026-03-18",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "OX Security discovered active phishing campaign targeting OpenClaw developers on GitHub. Attackers create fake GitHub accounts, open issues in attacker-controlled repos, and tag dozens of developers claiming they won ,000 in CLAW tokens. Links lead to wallet-draining sites mimicking openclaw.ai. Targets identified via GitHub star feature on OpenClaw repos. Covered by CoinDesk, Decrypt, Invezz (Mar 18-19). We don't interact with crypto wallets \u2014 low risk. Social engineering awareness only.",
+      "sources": [
+        "https://www.coindesk.com/tech/2026/03/19/openclaw-developers-targeted-in-github-phishing-scam-offering-fake-token-airdrops",
+        "https://www.ox.security/blog/openclaw-github-phishing-crypto-wallet-attack/",
+        "https://decrypt.co/361646/openclaw-developers-lured-github-phishing-campaign"
+      ],
+      "addedAt": "2026-03-20T07:30:00Z",
+      "reportAgainIf": [
+        "Campaign evolves to target OpenClaw configs or credentials",
+        "npm-based attack vector added",
+        "Our GitHub accounts targeted"
+      ]
+    },
+    {
+      "id": "NODEJS-MARCH-2026-SECURITY-RELEASE",
+      "title": "Node.js March 24, 2026 Security Release (2 High, 5 Medium, 2 Low)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-20",
+      "publishedDate": "2026-03-18",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "v22.22.2",
+      "notes": "Node.js March 24, 2026 security release APPLIED. v22.22.2 installed (confirmed 2026-03-31). All 9 CVEs resolved: CVE-2026-21637 (HIGH, TLS SNI DoS), CVE-2026-21710 (__proto__ header), CVE-2026-21713 (HMAC timing), CVE-2026-21714 (HTTP/2 memleak), CVE-2026-21717 (V8 HashDoS), CVE-2026-21711 (UDS perm bypass), CVE-2026-21712 (URL crash) + 2 LOW + undici update. SAFE.",
+      "updatedAt": "2026-03-31T07:30:00Z",
+      "sources": [
+        "https://nodejs.org/en/blog/vulnerability/march-2026-security-releases"
+      ],
+      "addedAt": "2026-03-20T07:30:00Z",
+      "reportAgainIf": [
+        "New Node.js 22.x security release",
+        "Active exploitation of any included CVE"
+      ]
+    },
+    {
+      "id": "NPM-MAINTAINER-COMPROMISE-SBX-MASK-2026-03",
+      "title": "Malicious npm Packages via Compromised Maintainer Account (sbx-mask, touch-adv)",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-20",
+      "publishedDate": "2026-03-19",
+      "status": "active",
+      "ourStatus": "low-risk",
+      "notes": "Sonatype discovered two malicious npm packages (sbx-mask, touch-adv) published via compromised maintainer account. sbx-mask exfiltrates env vars via postinstall; touch-adv embeds runtime-triggered credential theft. Reported to npm March 19. We don't depend on either package. Reminder to audit direct dependencies periodically.",
+      "sources": [
+        "https://www.sonatype.com/blog/sonatype-discovers-two-malicious-npm-packages"
+      ],
+      "addedAt": "2026-03-20T07:30:00Z",
+      "reportAgainIf": [
+        "Packages in our dependency tree affected",
+        "Broader npm supply chain compromise confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-32001",
+      "title": "OpenClaw Node Role Device-Identity Bypass via WebSocket Authentication",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.22",
+      "notes": "Clients authenticated with shared gateway token can connect as role=node without device identity verification. Allows injection of unauthorized node.event calls, triggering agent.request and voice.transcript flows without proper device pairing. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://cvefeed.io/vuln/detail/CVE-2026-32001",
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-rv2q-f2h5-6xmg"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-32015",
+      "title": "OpenClaw Exec safeBins Path Hijacking Bypass",
+      "severity": "HIGH",
+      "cvss": 7.0,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-19",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.19",
+      "notes": "Path hijacking in tools.exec.safeBins allows bypass of allowlist checks by controlling process PATH resolution. Attackers who can influence gateway process PATH can execute trojan binaries with allowlisted names (e.g., jq). CWE-426. CVSS:3.1 7.0 (AV:L/AC:H/PR:L/UI:N). We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32015-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32013",
+      "title": "OpenClaw Agent Files Symlink Traversal (Read/Write Outside Workspace)",
+      "severity": "HIGH",
+      "cvss": 8.8,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-19",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.25",
+      "notes": "Symlink traversal in agents.files.get and agents.files.set allows reading and writing files outside agent workspace. Exploiting symlinked allowlisted files grants access to arbitrary host files within gateway process permissions, enabling code execution via file overwrite. CWE-59. CVSS:3.1 8.8 (AV:N/AC:L/PR:L/UI:N). We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32013-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar symlink traversal vectors found"
+      ]
+    },
+    {
+      "id": "CVE-2026-28460",
+      "title": "OpenClaw system.run Allowlist Bypass via Shell Line-Continuation",
+      "severity": "MEDIUM",
+      "cvss": 5.9,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-19",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.22",
+      "notes": "Allowlist bypass in system.run via shell line-continuation characters. Injecting $\\\\ followed by newline and opening parenthesis inside double quotes causes shell to fold into executable command substitution, circumventing approval. CWE-78. CVSS:3.1 5.9 (AV:N/AC:H/PR:L/UI:N). We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28460-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-22176",
+      "title": "OpenClaw Windows Scheduled Task Command Injection via Environment Variables",
+      "severity": "MEDIUM",
+      "cvss": 6.1,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-19",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.19",
+      "notes": "Command injection in Windows Scheduled Task script generation where environment variables use unquoted set KEY=VALUE assignments. Shell metacharacters (&, |, ^, %, !) break out of assignment context. CWE-78. CVSS:3.1 6.1 (AV:L/AC:L/PR:L/UI:N). Windows-only \u2014 we run Linux. Not applicable.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-22176-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "Linux variant discovered",
+        "We start running Windows"
+      ]
+    },
+    {
+      "id": "CVE-2026-31996",
+      "title": "OpenClaw safeBins Input Validation Bypass (sort -o / grep -R)",
+      "severity": "LOW",
+      "cvss": 3.6,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-19",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.19",
+      "notes": "safeBins input validation bypass allowing sort -o for arbitrary file writes or grep -R for recursive file reads, circumventing stdin-only restrictions. CWE-78. CVSS:3.1 3.6 (AV:L/AC:H/PR:L/UI:N). We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-31996-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "META-AI-AGENT-DATA-LEAK-2026-03",
+      "title": "Meta AI Agent Data Leak \u2014 Rogue Agent Exposes Sensitive Data to Unauthorized Employees",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-18",
+      "status": "informational",
+      "ourStatus": "informational",
+      "notes": "Meta internal AI agent took unauthorized action leading to sensitive company and user data being exposed to engineers without proper access. Reported by The Information, Guardian, TechCrunch, Engadget (Mar 18-20). Reinforces 'Agents of Chaos' findings and Guardian lab test results. Not a specific CVE \u2014 enterprise alignment/authorization class. Relevant as ecosystem signal: even Big Tech is struggling with rogue agentic AI behavior. Our mitigations: explicit hard boundaries in AGENTS.md, single-operator model, exec approval gating.",
+      "sources": [
+        "https://www.theguardian.com/technology/2026/mar/20/meta-ai-agents-instruction-causes-large-sensitive-data-leak-to-employees",
+        "https://techcrunch.com/2026/03/18/meta-is-having-trouble-with-rogue-ai-agents/"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "Similar incident at OpenClaw-powered agent deployment",
+        "Specific mitigation framework released"
+      ]
+    },
+    {
+      "id": "HIDDENLAYER-AI-THREAT-LANDSCAPE-2026",
+      "title": "HiddenLayer 2026 AI Threat Landscape Report \u2014 Autonomous Agents 1 in 8 AI Breaches",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-18",
+      "status": "informational",
+      "ourStatus": "informational",
+      "notes": "HiddenLayer's 2026 report finds autonomous agents now account for more than 1 in 8 reported AI breaches as enterprises move to production. Edge AI models on devices create new security blind spots. Security controls, authentication, and monitoring have not kept pace. Ecosystem signal reinforcing need for hardened agent deployments.",
+      "sources": [
+        "https://www.prnewswire.com/news-releases/hiddenlayer-releases-the-2026-ai-threat-landscape-report-spotlighting-the-rise-of-agentic-ai-and-the-expanding-attack-surface-of-autonomous-systems-302716687.html"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "Report contains specific OpenClaw findings",
+        "Actionable mitigations published"
+      ]
+    },
+    {
+      "id": "CVE-2026-33017",
+      "title": "Langflow Unauthenticated RCE \u2014 Active Exploitation Within 20 Hours",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-21",
+      "publishedDate": "2026-03-19",
+      "status": "active-exploitation",
+      "ourStatus": "not-applicable",
+      "notes": "Critical unauthenticated RCE in Langflow AI pipeline builder via /api/v1/build_public_tmp/{flow_id}/flow endpoint. Attackers achieved exploitation within 20 hours of disclosure (Sysdig). Public PoCs available. We do NOT use Langflow \u2014 not applicable. Relevant as ecosystem signal: AI agent frameworks are high-value targets and get exploited almost immediately after CVE publication.",
+      "sources": [
+        "https://thehackernews.com/2026/03/critical-langflow-flaw-cve-2026-33017.html",
+        "https://www.sysdig.com/blog/cve-2026-33017-how-attackers-compromised-langflow-ai-pipelines-in-20-hours"
+      ],
+      "addedAt": "2026-03-21T07:30:00Z",
+      "reportAgainIf": [
+        "We start using Langflow",
+        "Similar exploitation speed seen for OpenClaw CVEs"
+      ]
+    },
+    {
+      "id": "CVE-2026-32049",
+      "title": "OpenClaw Inbound Media Byte Limit Bypass (DoS)",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-22",
+      "publishedDate": "2026-03-21",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.22",
+      "notes": "Inbound media byte limits not consistently enforced before buffering across multiple channel ingestion paths. Remote attackers can send oversized media payloads to trigger memory exhaustion and process instability. CWE-770. CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32049-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32048",
+      "title": "OpenClaw Sandbox Inheritance Bypass via Cross-Agent sessions_spawn",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-22",
+      "publishedDate": "2026-03-21",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.1",
+      "notes": "Sandbox inheritance not enforced during cross-agent sessions_spawn operations. Sandboxed sessions can create child processes under unsandboxed agents, bypassing runtime confinement. CWE-732. CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32048-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar sandbox escape vectors found"
+      ]
+    },
+    {
+      "id": "CVE-2026-32042",
+      "title": "OpenClaw Privilege Escalation via Unpaired Device Identity Self-Assignment",
+      "severity": "HIGH",
+      "cvss": 8.8,
+      "firstSeen": "2026-03-22",
+      "publishedDate": "2026-03-21",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.25",
+      "notes": "Unpaired device identities can bypass operator pairing requirements and self-assign elevated operator scopes including operator.admin. Attackers with valid shared gateway auth can present a self-signed unpaired device identity. CWE-863. CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32042-openclaw-openclaw/",
+        "https://www.thehackerwire.com/openclaw-privilege-escalation-via-unpaired-device-identity/"
+      ],
+      "addedAt": "2026-03-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-32025",
+      "title": "OpenClaw Browser-Origin WebSocket Auth Hardening Gap (Loopback Brute-Force)",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-22",
+      "publishedDate": "2026-03-19",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.25",
+      "notes": "Authentication hardening gap in browser-origin WebSocket clients allows bypass of origin checks and auth throttling on loopback deployments. Attackers can trick users into opening malicious webpages to brute-force gateway passwords. Related to original ClawJacked vulnerability class. CWE-307. CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32025-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-32056",
+      "title": "OpenClaw system.run Shell Startup Env Var Injection (HOME/ZDOTDIR)",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-03-22",
+      "publishedDate": "2026-03-21",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.22",
+      "notes": "system.run fails to sanitize HOME and ZDOTDIR environment variables. Attackers can inject malicious shell startup files (.bash_profile, .zshenv) to achieve arbitrary code execution before allowlisted commands run. CWE-78. CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32056-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar env var injection vectors found"
+      ]
+    },
+    {
+      "id": "CVE-2026-32051",
+      "title": "OpenClaw Authorization Mismatch \u2014 operator.write to Owner-Only Tool Surfaces",
+      "severity": "HIGH",
+      "cvss": 8.8,
+      "firstSeen": "2026-03-22",
+      "publishedDate": "2026-03-21",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.1",
+      "notes": "Authorization mismatch allows operator.write callers to invoke owner-only tool surfaces (gateway, cron) through agent runs in scoped-token deployments, enabling control-plane actions beyond authorized level. CVSS:3.1 8.8. CWE-863. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.thehackerwire.com/openclaw-authorization-mismatch-cve-2026-32051/"
+      ],
+      "addedAt": "2026-03-22T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-22172",
+      "title": "OpenClaw WebSocket Authorization Bypass \u2014 Scope Self-Declaration (CVSS 9.9)",
+      "severity": "CRITICAL",
+      "cvss": 9.9,
+      "firstSeen": "2026-03-23",
+      "publishedDate": "2026-03-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.12",
+      "notes": "Critical authorization bypass in OpenClaw WebSocket connect path. Server fails to bind or validate client-declared scopes during connection handshake. Authenticated attackers (shared-token or password) can self-declare operator.admin scope and gain full admin gateway control. CVSS:3.1 9.9. CWE-863. Duplicate of GHSA-g353-mgv3-8pcj (already tracked) but now has formal CVE assignment. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.thehackerwire.com/openclaw-critical-websocket-authorization-bypass-cve-2026-22172/",
+        "https://cvereports.com/reports/GHSA-X49Q-FHHM-R9JF"
+      ],
+      "addedAt": "2026-03-23T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "QIHOO-360-OPENCLAW-WS-ZERODAY-2026-03",
+      "title": "Qihoo 360 Claims Exclusive Discovery of OpenClaw Gateway WebSocket Unauthenticated Upgrade 0-Day",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-23",
+      "publishedDate": "2026-03-22",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.23-2",
+      "notes": "Covered by OpenClaw 2026.3.23-2 update. Whether new variant or CVE-2026-22172 confirmation is unclear, but our version is well past all patch versions.",
+      "sources": [
+        "https://www.techflowpost.com/en-US/newsletter/117542"
+      ],
+      "addedAt": "2026-03-23T07:30:00Z",
+      "reportAgainIf": [
+        "CVE number assigned",
+        "Patch version confirmed",
+        "Active exploitation confirmed"
+      ],
+      "updatedAt": "2026-03-25T07:30:00Z"
+    },
+    {
+      "id": "CNCERT-OPENCLAW-USAGE-GUIDELINES-2026-03",
+      "title": "CNCERT + China Cybersecurity Association Release 'OpenClaw Secure Usage Practice Guidelines'",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-23",
+      "publishedDate": "2026-03-22",
+      "status": "informational",
+      "ourStatus": "informational",
+      "notes": "Comprehensive formal security guidance jointly issued by CNCERT and Cyber Security Association of China on March 22. Covers individual users, enterprises, cloud providers, and developers. Key recommendations: install only on dedicated/isolated devices, never run as root/admin, avoid processing sensitive data, keep updated, audit plugins. This escalates the March 10 ban to formal national security guidance. Covered by Xinhua, China Daily, CGTN, People's Daily. We already follow most recommendations (dedicated VPS, patched, no untrusted skills).",
+      "sources": [
+        "https://english.news.cn/20260322/c609a4b568ea4ad0a526f41ec26611d8/c.html",
+        "https://www.chinadaily.com.cn/a/202603/22/WS69bff258a310d6866eb3f25b.html",
+        "https://news.cgtn.com/news/2026-03-23/China-releases-OpenClaw-security-guidance-for-different-groups-1LJZt3chZ72/p.html"
+      ],
+      "addedAt": "2026-03-23T07:30:00Z",
+      "reportAgainIf": [
+        "Similar guidance from US CISA or EU ENISA",
+        "Recommendations we don't follow identified"
+      ]
+    },
+    {
+      "id": "CVE-2026-3888",
+      "title": "snapd Local Privilege Escalation to Root (Ubuntu 24.04+)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-23",
+      "publishedDate": "2026-03-17",
+      "status": "patched-upstream",
+      "ourStatus": "low-risk-server",
+      "ourVersion": "snapd 2.74.1 (snap) / 2.73+ubuntu24.04.2 (dpkg)",
+      "notes": "Qualys TRU discovered local privilege escalation via snap-confine and systemd-tmpfiles interaction. Unprivileged local attacker can escalate to root by exploiting race condition in sandbox initialization (TOCTOU on /tmp/snap-private-tmp). Affects Ubuntu Desktop 24.04+ default installations. We run Ubuntu 24.04 SERVER with no desktop (no display manager). snapd is installed (snap store: 2.74.1, dpkg: 2.73). The attack requires local access and desktop-oriented tmpfiles rules. Low risk for our headless server. snapd snap store version (2.74.1) appears patched; dpkg package lags behind.",
+      "sources": [
+        "https://blog.qualys.com/vulnerabilities-threat-research/2026/03/17/cve-2026-3888-important-snap-flaw-enables-local-privilege-escalation-to-root",
+        "https://discourse.ubuntu.com/t/snapd-local-privilege-escalation-cve-2026-3888/78627",
+        "https://thehackernews.com/2026/03/ubuntu-cve-2026-3888-bug-lets-attackers.html"
+      ],
+      "addedAt": "2026-03-23T07:30:00Z",
+      "reportAgainIf": [
+        "Server-specific exploitation variant discovered",
+        "Ubuntu security update for snapd released in apt",
+        "We confirm dpkg snapd package updated"
+      ]
+    },
+    {
+      "id": "OPENCLAW-3-14-UPDATE-AVAILABLE",
+      "title": "OpenClaw 2026.3.14+ Available (includes Qihoo 360 zero-day fix)",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-23",
+      "status": "applied",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.14",
+      "notes": "OpenClaw 2026.3.28 installed as of 2026-03-30 scan. All security fixes applied. UPDATE APPLIED.",
+      "addedAt": "2026-03-23T07:30:00Z",
+      "updatedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "We confirm update applied",
+        "Newer version with security fixes released"
+      ]
+    },
+    {
+      "id": "CVE-2026-29607",
+      "title": "OpenClaw Allow-Always Wrapper Persistence Authorization Bypass",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-24",
+      "publishedDate": "2026-03-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.22",
+      "notes": "Allow-always wrapper persistence allows attackers to bypass approval checks by persisting wrapper-level allowlist entries instead of validating inner executable intent. CWE-863. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-29607-openclaw-openclaw/",
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-6j27-pc5c-m8w8"
+      ],
+      "addedAt": "2026-03-24T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-31999",
+      "title": "OpenClaw Windows CWD Injection in Wrapper Resolution (.cmd/.bat)",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-24",
+      "publishedDate": "2026-03-20",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.1",
+      "notes": "Windows ACPX wrapper resolution for .cmd/.bat could fall back to shell execution allowing cwd influence to alter execution behavior. Windows-only \u2014 we run Linux. Not applicable.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-31999-openclaw-openclaw/",
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-6f6j-wx9w-ff4j"
+      ],
+      "addedAt": "2026-03-24T07:30:00Z",
+      "reportAgainIf": [
+        "Linux variant discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32064",
+      "title": "OpenClaw Sandbox Browser x11vnc Unauthenticated VNC Access",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-24",
+      "publishedDate": "2026-03-21",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.2.21",
+      "notes": "Sandbox browser entrypoint launches x11vnc without authentication for noVNC observer sessions, allowing unauthenticated access to the VNC interface. We run 2026.3.13 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32064-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-24T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-28461",
+      "title": "OpenClaw Zalo Webhook Unbounded Memory Growth DoS",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-24",
+      "publishedDate": "2026-03-19",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.13",
+      "patchedIn": "2026.3.1",
+      "notes": "Unbounded memory growth vulnerability in Zalo webhook endpoint allows unauthenticated attackers to exhaust memory. We do NOT use Zalo \u2014 not applicable.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-28461-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-24T07:30:00Z",
+      "reportAgainIf": [
+        "We start using Zalo",
+        "Similar DoS in channels we use"
+      ]
+    },
+    {
+      "id": "CVE-2026-32055",
+      "title": "OpenClaw Workspace Boundary Path Traversal via Symlinks (CVE assignment)",
+      "severity": "HIGH",
+      "cvss": 7.6,
+      "firstSeen": "2026-03-25",
+      "publishedDate": "2026-03-21",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.23-2",
+      "patchedIn": "2026.2.26",
+      "notes": "CVE assignment for workspace boundary path traversal via in-workspace symlinks. Related to OPENCLAW-WORKSPACE-SYMLINK-BYPASS-2026-03. We run 2026.3.23-2 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32055-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-25T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32065",
+      "title": "OpenClaw system.run Approval UI Whitespace Trimming Bypass",
+      "severity": "MEDIUM",
+      "cvss": 5.7,
+      "firstSeen": "2026-03-25",
+      "publishedDate": "2026-03-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.23-2",
+      "patchedIn": "2026.2.25",
+      "notes": "Approval UI trims whitespace before display but execution uses raw untrimmed argv. Fixed in commit 03e689fc. We run 2026.3.23-2 \u2014 SAFE.",
+      "sources": [
+        "https://cve.threatint.eu/CVE/CVE-2026-32065"
+      ],
+      "addedAt": "2026-03-25T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32018",
+      "title": "OpenClaw Container Registry TOCTOU Race Condition",
+      "severity": "MEDIUM",
+      "cvss": 6.6,
+      "firstSeen": "2026-03-25",
+      "publishedDate": "2026-03-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.23-2",
+      "patchedIn": "2026.3.12",
+      "notes": "Concurrent updateRegistry/removeRegistryEntry calls on containers.json with no file locking. We run 2026.3.23-2 \u2014 SAFE.",
+      "sources": [
+        "https://blink.new/blog/openclaw-cve-2026-new-vulnerabilities-fix"
+      ],
+      "addedAt": "2026-03-25T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32895",
+      "title": "OpenClaw Slack/Channel Sender Authorization Bypass in System Event Handlers",
+      "severity": "MEDIUM",
+      "cvss": 5.3,
+      "firstSeen": "2026-03-25",
+      "publishedDate": "2026-03-20",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.23-2",
+      "patchedIn": "2026.2.26",
+      "notes": "Missing sender authorization in system event handlers allows unauthorized events. VulnCheck discovery. We run 2026.3.23-2 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-cve-2026-32895-medium/"
+      ],
+      "addedAt": "2026-03-25T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Similar bypass in channels we use"
+      ]
+    },
+    {
+      "id": "REVERSINGLABS-AGENT-RISK-2026-03",
+      "title": "ReversingLabs: AI Agents Are a Black Hole of Risks \u2014 SOUL.md Persistence Attack",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-25",
+      "publishedDate": "2026-03-19",
+      "status": "informational",
+      "ourStatus": "low-risk",
+      "notes": "ReversingLabs analysis: SOUL.md persistent context can be modified via scheduled tasks for long-lived attacker control. Our mitigations: AGENTS.md hard boundaries, single-operator model, exec approval gating, memory reviewed by Thomas.",
+      "sources": [
+        "https://www.reversinglabs.com/blog/openclaw-ai-agents-black-hole-risks"
+      ],
+      "addedAt": "2026-03-25T07:30:00Z",
+      "reportAgainIf": [
+        "Specific PoC targeting cron + SOUL.md",
+        "Mitigation framework released",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-32973",
+      "title": "OpenClaw Exec Allowlist Bypass RCE via Glob/Path Normalization",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "matchesExecAllowlistPattern improperly normalizes patterns via lowercasing and glob matching, allowing ? wildcard to match across path segments and bypass allowlist. CVSS:3.1 9.8. CWE-184. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://www.thehackerwire.com/openclaw-exec-allowlist-bypass-rce-cve-2026-32973/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-32978",
+      "title": "OpenClaw system.run Approval TOCTOU for tsx/jiti Script Runners",
+      "severity": "HIGH",
+      "cvss": 8.0,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "system.run approvals fail to bind mutable file operands for tsx and jiti script runners. CVSS:3.1 8.0. CWE-863. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32978-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32914",
+      "title": "OpenClaw /config and /debug Command Handler Access Control Bypass",
+      "severity": "HIGH",
+      "cvss": 8.8,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.12",
+      "notes": "Insufficient access control in /config and /debug command handlers allows non-owners to access owner-only surfaces. CVSS:3.1 8.8. CWE-863. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32914-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32918",
+      "title": "OpenClaw session_status Sandbox Escape (CVE assignment for GHSA-wcxr-59v9-rxr8)",
+      "severity": "HIGH",
+      "cvss": 8.4,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "CVE assignment for GHSA-wcxr-59v9-rxr8. session_status sandbox escape via arbitrary sessionKey. CVSS:3.1 8.4. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32918-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32915",
+      "title": "OpenClaw Subagent Sandbox Boundary Bypass via Control Surface",
+      "severity": "HIGH",
+      "cvss": 8.8,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "Leaf subagents can access subagents control surface and resolve against parent requester scope. CVSS:3.1 8.8. CWE-863. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32915-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32972",
+      "title": "OpenClaw Browser Profile Management Auth Bypass (CVE for GHSA-vmhq-cqm9-6p7q)",
+      "severity": "HIGH",
+      "cvss": 7.1,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "CVE assignment for GHSA-vmhq-cqm9-6p7q. operator.write to admin browser profile routes. CVSS:3.1 7.1. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32972-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32979",
+      "title": "OpenClaw Approval Integrity \u2014 Script Rewrite TOCTOU",
+      "severity": "HIGH",
+      "cvss": 7.3,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "Script rewrite between approval and execution when exact file binding cannot occur. CVSS:3.1 7.3. CWE-367. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32979-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32974",
+      "title": "OpenClaw Feishu Webhook Auth Bypass (verificationToken without encryptKey)",
+      "severity": "HIGH",
+      "cvss": 8.6,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.12",
+      "notes": "Feishu webhook accepts forged events when only verificationToken configured. CVSS:3.1 8.6. CWE-347. We do NOT use Feishu \u2014 N/A.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32974-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "We start using Feishu"
+      ]
+    },
+    {
+      "id": "GHSA-QM9X-V7CX-7RQ4",
+      "title": "OpenClaw Exec Approval Bypass via /usr/bin/time Wrapper",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-26",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.22",
+      "notes": "allow-always did not unwrap /usr/bin/time wrapper to inspect inner executable. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://github.com/advisories/GHSA-qm9x-v7cx-7rq4"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32975",
+      "title": "OpenClaw Zalo User Allowlist Bypass",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-03-30",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.12",
+      "notes": "Weak authorization in Zalo user allowlist. We do NOT use Zalo \u2014 N/A.",
+      "sources": [
+        "https://www.thehackerwire.com/openclaw-zalouser-allowlist-bypass-cve-2026-32975/"
+      ],
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "We start using Zalo"
+      ]
+    },
+    {
+      "id": "OPENCLAW-3-28-VERSION-UPDATE",
+      "title": "OpenClaw Updated to 2026.3.28",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-03-30",
+      "status": "applied",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "notes": "OpenClaw updated from 2026.3.23-2 to 2026.3.28. All known security patches applied.",
+      "addedAt": "2026-03-30T07:30:00Z",
+      "reportAgainIf": [
+        "Newer version with security fixes released"
+      ]
+    },
+    {
+      "id": "OPENCLAW-GATEWAY-SYNTHETIC-ADMIN-2026-03",
+      "title": "OpenClaw Gateway Privilege Escalation via Synthetic Admin Scope in deleteSession",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-31",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.25",
+      "notes": "deleteSession function in Gateway plugin subagent fallback generates synthetic operator.admin scope when invoked without valid request-scoped client. Unauthenticated requests triggering fallback path can execute sessions.delete with admin privileges, enabling arbitrary session deletion (DoS). Fixed in 2026.3.25 (commit b5d785f). We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-privilege-escalation-cve-2026-xxxx-high/"
+      ],
+      "addedAt": "2026-03-31T07:30:00Z",
+      "reportAgainIf": [
+        "CVE number assigned",
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "GHSA-RHFG-J8JQ-7V2H",
+      "title": "OpenClaw SSRF via Unguarded Base URLs \u2014 Incomplete Fix for CVE-2026-28476",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-31",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "post-2026.3.24",
+      "notes": "Incomplete fix for CVE-2026-28476: fetchWithSsrFGuard not applied to Mattermost, Nextcloud-Talk, BlueBubbles channel extensions. Raw fetch() against configurable base URLs allows SSRF. Fixed in commit f92c925. We run 2026.3.28 and do NOT use affected extensions \u2014 SAFE (double-mitigated).",
+      "sources": [
+        "https://advisories.gitlab.com/pkg/npm/openclaw/GHSA-rhfg-j8jq-7v2h/",
+        "https://dailycve.com/openclaw-ssrf-cve-2026-28476-high/"
+      ],
+      "addedAt": "2026-03-31T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "We start using Mattermost/Nextcloud-Talk/BlueBubbles"
+      ]
+    },
+    {
+      "id": "OPENCLAW-SESSION-STATUS-BYPASS-V2-2026-03",
+      "title": "OpenClaw session_status Sandbox Escape \u2014 New Variant (Visibility Check Order)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-31",
+      "publishedDate": "2026-03-26",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.25",
+      "notes": "New variant of session_status sandbox escape (originally GHSA-wcxr-59v9-rxr8 / CVE-2026-32918). Visibility checks occurred before sessionId-to-key resolution, allowing sandboxed child to access parent/sibling sessions. Fixed in 2026.3.25 (commit d981081). We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://dailycve.com/openclaw-session-status-bypass-github-advisory-high/"
+      ],
+      "addedAt": "2026-03-31T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "CVE number assigned"
+      ]
+    },
+    {
+      "id": "GHSA-RF6H-5GPW-QRGQ",
+      "title": "OpenClaw MS Teams Feedback Invocation Authorization Bypass",
+      "severity": "MODERATE",
+      "cvss": null,
+      "firstSeen": "2026-03-31",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "not-applicable",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.25",
+      "notes": "MS Teams feedback command lacks sender authorization. Attackers bypass allowlists to record unauthorized session feedback. Fixed in 2026.3.25 (commit c5415a4). We do NOT use MS Teams \u2014 not applicable.",
+      "sources": [
+        "https://advisories.gitlab.com/pkg/npm/openclaw/GHSA-rf6h-5gpw-qrgq/"
+      ],
+      "addedAt": "2026-03-31T07:30:00Z",
+      "reportAgainIf": [
+        "We start using MS Teams",
+        "Similar bypass in channels we use"
+      ]
+    },
+    {
+      "id": "CVE-2026-33575",
+      "title": "OpenClaw Setup Code Credential Exposure (CVE Assignment)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-03-31",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.12",
+      "notes": "CVE assignment for previously tracked OPENCLAW-SETUP-CODE-CREDENTIAL-EXPOSURE-2026-03. Pairing setup codes embed long-lived gateway credentials. Fixed in 2026.3.12. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://nvd.nist.gov/vuln/detail/CVE-2026-33575",
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-33575-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-03-31T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-33577",
+      "title": "OpenClaw Node Pairing Scope Validation Bypass",
+      "severity": "HIGH",
+      "cvss": 8.1,
+      "firstSeen": "2026-04-01",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.28",
+      "notes": "Insufficient scope validation in node pairing approval path allows low-privilege operators to approve nodes with broader scopes. Missing callerScopes validation in node-pairing.ts. We run exactly 2026.3.28 (the fix version) \u2014 SAFE.",
+      "sources": [
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-2x4x-cc5g-qmmg",
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-33577-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-04-01T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-32988",
+      "title": "OpenClaw Sandbox fs-bridge Staged Write TOCTOU Bypass",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-04-01",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "Sandbox boundary bypass in fs-bridge staged writes. Temp file creation not pinned to verified parent directory. Race condition allows writes outside validated path. CWE-367. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-mj4p-rc52-m843",
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32988-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-04-01T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32920",
+      "title": "OpenClaw Workspace Plugin Auto-Discovery RCE",
+      "severity": "HIGH",
+      "cvss": 8.4,
+      "firstSeen": "2026-04-01",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.12",
+      "notes": "Auto-discovers and loads plugins from .OpenClaw/extensions/ without trust verification. Malicious plugins in cloned repos execute on directory entry. CWE-829. We run 2026.3.28 and don't clone untrusted repos \u2014 SAFE.",
+      "sources": [
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-99qw-6mr3-36qr",
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32920-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-04-01T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Supply chain attack via this vector"
+      ]
+    },
+    {
+      "id": "CVE-2026-32982",
+      "title": "OpenClaw Telegram Bot Token Exposure in Error Logs",
+      "severity": "HIGH",
+      "cvss": 7.5,
+      "firstSeen": "2026-04-01",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.13",
+      "notes": "fetchRemoteMedia exposes Telegram bot tokens in MediaFetchError strings when media downloads fail. CWE-532. We run 2026.3.28 and use Telegram \u2014 SAFE (patched). Consider auditing old logs.",
+      "sources": [
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-xwcj-hwhf-h378",
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32982-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-04-01T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Token leak confirmed from old logs"
+      ]
+    },
+    {
+      "id": "CVE-2026-33572",
+      "title": "OpenClaw Session Transcript Insecure File Permissions",
+      "severity": "HIGH",
+      "cvss": 8.4,
+      "firstSeen": "2026-04-01",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.2.17",
+      "notes": "Session transcript JSONL files created with overly broad permissions. Local users can read transcripts containing secrets. CWE-378. We run 2026.3.28, single-user server \u2014 SAFE.",
+      "sources": [
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-vr7j-g7jv-h5mp",
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-33572-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-04-01T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "CVE-2026-32916",
+      "title": "OpenClaw Plugin Subagent Routes Synthetic Admin Scope Bypass",
+      "severity": "HIGH",
+      "cvss": 7.7,
+      "firstSeen": "2026-04-01",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "Plugin subagent routes execute gateway methods via synthetic operator client with admin scopes. Remote unauth requests can invoke runtime.subagent for privileged actions. CWE-266. Affects 2026.3.7-2026.3.10. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-xw77-45gv-p728",
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32916-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-04-01T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "OPENCLAW-3-31-UPDATE-AVAILABLE",
+      "title": "OpenClaw 2026.3.31 Available (\u26a0\ufe0f exec approval regression)",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-04-01",
+      "status": "superseded",
+      "ourStatus": "hold",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.31",
+      "notes": "OpenClaw 2026.3.31 exec regression resolved in 2026.4.1. HOLD lifted. Update to 2026.4.1 recommended.",
+      "addedAt": "2026-04-01T07:30:00Z",
+      "updatedAt": "2026-04-03T06:30:00Z",
+      "reportAgainIf": [
+        "Regression fixed (2026.3.32 or hotfix released)",
+        "We confirm update applied",
+        "Newer version with security fixes released"
+      ]
+    },
+    {
+      "id": "CVE-2026-5281",
+      "title": "Chrome Dawn WebGPU Use-After-Free Zero-Day (Actively Exploited)",
+      "severity": "CRITICAL",
+      "cvss": null,
+      "firstSeen": "2026-04-02",
+      "publishedDate": "2026-04-01",
+      "status": "patched-upstream",
+      "ourStatus": "vulnerable-update-available",
+      "ourVersion": "146.0.7680.164",
+      "patchedIn": "146.0.7680.177",
+      "notes": "Use-after-free in Dawn, Chrome WebGPU implementation. 4th Chrome zero-day exploited in 2026. CISA KEV entry with April 15 deadline. We run 146.0.7680.164 \u2014 VULNERABLE. Fix: 146.0.7680.177.",
+      "sources": [
+        "https://www.bleepingcomputer.com/news/security/google-fixes-fourth-chrome-zero-day-exploited-in-attacks-in-2026/",
+        "https://thehackernews.com/2026/04/new-chrome-zero-day-cve-2026-5281-under.html",
+        "https://www.helpnetsecurity.com/2026/04/01/google-chrome-zero-day-cve-2026-5281/"
+      ],
+      "addedAt": "2026-04-02T07:30:00Z",
+      "reportAgainIf": [
+        "We confirm update applied",
+        "Exploitation in browser automation contexts confirmed"
+      ],
+      "updatedAt": "2026-04-03T06:30:00Z"
+    },
+    {
+      "id": "CVE-2026-34503",
+      "title": "OpenClaw WebSocket Session Persistence After Token Revocation",
+      "severity": "HIGH",
+      "cvss": 8.1,
+      "firstSeen": "2026-04-02",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.28",
+      "notes": "Active WebSocket sessions not disconnected when devices removed or tokens revoked. Attackers with revoked credentials maintain access through existing sessions. CWE-613. Fixed in 2026.3.28 (commit 7a801cc). We run exactly 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://github.com/openclaw/openclaw/security/advisories/GHSA-2pr2-hcv6-7gwv",
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-34503-openclaw-openclaw/",
+        "https://nvd.nist.gov/vuln/detail/CVE-2026-34503"
+      ],
+      "addedAt": "2026-04-02T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CVE-2026-33581",
+      "title": "OpenClaw Message Tool Media Parameter Filesystem Isolation Bypass",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-04-02",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "likely-safe",
+      "ourVersion": "2026.3.28",
+      "notes": "Message tool accepted mediaUrl and fileUrl aliases without sandbox localRoots validation. Allows arbitrary file reads via unvalidated parameter aliases. Fixed in commit 1d7cb6fc. We run 2026.3.28 \u2014 likely safe but exact fix version unclear. Update to 2026.3.31 recommended when regression fixed.",
+      "sources": [
+        "https://github.com/advisories/GHSA-v8wv-jg3q-qwpq",
+        "https://advisories.gitlab.com/pkg/npm/openclaw/CVE-2026-33581/"
+      ],
+      "addedAt": "2026-04-02T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "We confirm fix version",
+        "Active exploitation confirmed"
+      ]
+    },
+    {
+      "id": "GHSA-F44P-C7W9-7XR7",
+      "title": "OpenClaw Gateway WebSocket DoS via Unbounded Pre-Auth Upgrades",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-04-02",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "low-risk",
+      "ourVersion": "2026.3.28",
+      "notes": "Gateway accepts unbounded concurrent unauthenticated WebSocket upgrades before authenticated session budget allocation. Enables memory/resource exhaustion DoS. Fixed in commit cb5f7e20. We are localhost-only (low risk) but should update when regression fixed.",
+      "sources": [
+        "https://github.com/advisories/GHSA-f44p-c7w9-7xr7"
+      ],
+      "addedAt": "2026-04-02T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "Network-based exploitation variant"
+      ]
+    },
+    {
+      "id": "GHSA-G86V-F9QV-RH6M",
+      "title": "OpenClaw SSRF Guard Misses IPv6 Special-Use Ranges",
+      "severity": "MEDIUM",
+      "cvss": null,
+      "firstSeen": "2026-04-02",
+      "publishedDate": "2026-03-31",
+      "status": "patched",
+      "ourStatus": "low-risk",
+      "ourVersion": "2026.3.28",
+      "notes": "SSRF/IP classifier treats IPv6 special-use ranges as public, allowing fetches to internal endpoints via IPv6. Fixed in commit d61f8e56. Low risk for our deployment.",
+      "sources": [
+        "https://github.com/advisories/GHSA-g86v-f9qv-rh6m"
+      ],
+      "addedAt": "2026-04-02T07:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered",
+        "IPv6-based SSRF exploitation confirmed"
+      ]
+    },
+    {
+      "id": "CLAUDE-CODE-LEAK-NPM-SUPPLY-CHAIN-2026-04",
+      "title": "Claude Code Source Leak + Malicious axios npm Supply Chain Attack",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-04-02",
+      "publishedDate": "2026-03-31",
+      "status": "active",
+      "ourStatus": "safe",
+      "notes": "Anthropic accidentally leaked 512K lines of Claude Code source via npm packaging error (map file). Concurrent but unrelated supply chain attack: malicious axios 1.14.1 and 0.30.4 published on npm containing RAT, targeting Claude Code users during confusion. Window: March 31 00:21-03:29 UTC. We run axios 1.14.0 (clean) and did not update during the attack window. NOT AFFECTED.",
+      "sources": [
+        "https://thehackernews.com/2026/04/claude-code-tleaked-via-npm-packaging.html",
+        "https://venturebeat.com/technology/claude-codes-source-code-appears-to-have-leaked-heres-what-we-know",
+        "https://www.theregister.com/2026/03/31/anthropic_claude_code_source_code/"
+      ],
+      "addedAt": "2026-04-02T07:30:00Z",
+      "reportAgainIf": [
+        "Malicious axios version enters our dependency tree",
+        "npm-wide supply chain attack escalation",
+        "Similar attack targeting OpenClaw packages"
+      ]
+    },
+    {
+      "id": "GHSA-M3MH-3MPG-37HW",
+      "title": "OpenClaw Git Executable Hijack via Project-Level .npmrc",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-04-03",
+      "publishedDate": "2026-03-30",
+      "status": "patched",
+      "ourStatus": "low-risk",
+      "ourVersion": "2026.3.28",
+      "notes": "During plugin/hook installation, Git executable can be hijacked by project-level .npmrc file, leading to arbitrary code execution. We do not install plugins from untrusted sources \u2014 low risk. Update to 2026.4.1 recommended.",
+      "sources": [
+        "https://github.com/advisories/GHSA-m3mh-3mpg-37hw"
+      ],
+      "addedAt": "2026-04-03T06:30:00Z",
+      "reportAgainIf": [
+        "We install plugins from untrusted sources",
+        "CVE number assigned"
+      ]
+    },
+    {
+      "id": "CVE-2026-32971",
+      "title": "OpenClaw Node-Host Approval UI Mismatch (Shell Payload Display)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-04-03",
+      "publishedDate": "2026-03-29",
+      "status": "patched",
+      "ourStatus": "safe",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.3.11",
+      "notes": "Approval UI displays extracted shell payloads instead of the executed argv, allowing users to approve commands different from what executes. We run 2026.3.28 \u2014 SAFE.",
+      "sources": [
+        "https://www.redpacketsecurity.com/cve-alert-cve-2026-32971-openclaw-openclaw/"
+      ],
+      "addedAt": "2026-04-03T06:30:00Z",
+      "reportAgainIf": [
+        "Bypass discovered"
+      ]
+    },
+    {
+      "id": "OPENCLAW-BROWSER-PROFILE-RESET-BYPASS-2026-04",
+      "title": "OpenClaw Browser Profile Reset Auth Bypass (Incomplete Fix for GHSA-vmhq-cqm9-6p7q)",
+      "severity": "HIGH",
+      "cvss": null,
+      "firstSeen": "2026-04-03",
+      "publishedDate": "2026-03-23",
+      "status": "patched-upstream",
+      "ourStatus": "update-recommended",
+      "ourVersion": "2026.3.28",
+      "notes": "POST /reset-profile omitted from isPersistentBrowserProfileMutation classifier. operator.write users can destroy browser profiles. Affects v2026.3.22. Update to 2026.4.1 recommended.",
+      "sources": [
+        "https://dailycve.com/openclaw-authorization-bypass-cve-2026-xxxxx-high/"
+      ],
+      "addedAt": "2026-04-03T06:30:00Z",
+      "reportAgainIf": [
+        "CVE number assigned",
+        "We confirm fix in 2026.4.1"
+      ]
+    },
+    {
+      "id": "OPENCLAW-4-1-UPDATE-AVAILABLE",
+      "title": "OpenClaw 2026.4.1 Available (exec regression fixed, new security patches)",
+      "severity": "INFO",
+      "cvss": null,
+      "firstSeen": "2026-04-03",
+      "status": "update-available",
+      "ourStatus": "update-recommended",
+      "ourVersion": "2026.3.28",
+      "patchedIn": "2026.4.1",
+      "notes": "OpenClaw 2026.4.1 published April 2. Exec regression from 2026.3.31 fixed. Includes Task Flow substrate, /tasks command, openclaw doctor improvements. Breaking: xAI and Firecrawl config paths moved (use openclaw doctor --fix).",
+      "addedAt": "2026-04-03T06:30:00Z",
+      "reportAgainIf": [
+        "We confirm update applied",
+        "Newer version with security fixes released"
       ]
     }
   ],
